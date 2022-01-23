@@ -1,0 +1,82 @@
+#set($name = "${context.className.substring(0,1).toLowerCase()}${context.className.substring(1)}")
+package ${context.package}.model.$!{name.toLowerCase()};
+
+
+#foreach($subfield in ${context.subtables})
+    #foreach($relField in ${context.formDataList})
+        #if(${relField.config.children})
+            #if(${relField.config.tableName}==${subfield.subKey})
+                #set($ChildName="${subfield.subValue.substring(0,1).toUpperCase()}${subfield.subValue.substring(1)}")
+import ${context.package}.entity.${ChildName}Entity;
+            #end
+        #end
+    #end
+#end
+import lombok.Data;
+import java.util.List;
+import java.math.BigDecimal;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+/**
+ *
+ * ${context.genInfo.description}
+ * @版本： ${context.genInfo.version}
+ * @版权： ${context.genInfo.copyright}
+ * @作者： ${context.genInfo.createUser}
+ * @日期： ${context.genInfo.createDate}
+ */
+@Data
+public class $!{context.className}CrForm  {
+#foreach($field in ${context.tableModel.fields})
+#foreach($relField in ${context.formDataList})
+    #set($Name=${field.field})
+    #set($fieldName=${field.fieldName})
+    #if(${relField.vModel}==${Name})
+    /** ${fieldName} */
+    #set($type=${field.dataType.toLowerCase()})
+     #if(${type}=='varchar'|| ${type}=='text'|| ${type}=='longtext' )
+    @JsonProperty("${Name}")
+    private String ${Name};
+
+     #elseif(${type}=='bigint'||${type}=='long'|| ${type}=='datetime' || ${type}=='date')
+     #if(${relField.config.jnpfKey}=='createTime'||${relField.config.jnpfKey}=='modifyTime')
+    @JsonProperty("${Name}")
+    private String ${Name};
+
+     #else
+    @JsonProperty("${Name}")
+    private Long ${Name};
+
+     #end
+     #elseif(${type}=='int'||${type}=='number')
+    @JsonProperty("${Name}")
+    private Integer ${Name};
+
+     #elseif(${type}=='decimal')
+    @JsonProperty("${Name}")
+    private BigDecimal ${Name};
+
+     #else
+    @JsonProperty("${Name}")
+    private String ${Name};
+
+     #end
+    #end
+#end
+#end
+#foreach($subfield in ${context.subtables})
+#foreach($relField in ${context.formDataList})
+    #if(${relField.config.children})
+        #if(${relField.config.tableName}==${subfield.subKey})
+            #set($ChildName="${subfield.subValue.substring(0,1).toUpperCase()}${subfield.subValue.substring(1)}Entity")
+            #set($childName="${subfield.subValue.substring(0,1).toLowerCase()}${subfield.subValue.substring(1)}Entity")
+    /** 子表数据 */
+    @JsonProperty("${childName}List")
+    private List<${ChildName}> ${childName}List;
+
+        #end
+    #end
+    #end
+#end
+
+}

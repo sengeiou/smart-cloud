@@ -1,0 +1,95 @@
+#set($name = "${context.className.substring(0,1).toLowerCase()}${context.className.substring(1)}")
+#set($pKeyName =${context.pKeyName.toLowerCase()})
+#if(${pKeyName.substring(0,2).toLowerCase()}=='f_')
+    #set($peimaryKeyName = "${pKeyName.substring(2,3).toUpperCase()}${pKeyName.substring(3)}")
+    #set($peimaryKeyname = "${pKeyName.substring(2,3).toLowerCase()}${pKeyName.substring(3)}")
+#else
+    #set($peimaryKeyName = "${pKeyName.substring(0,1).toUpperCase()}${pKeyName.substring(1)}")
+    #set($peimaryKeyname = "${pKeyName.substring(0,1).toLowerCase()}${pKeyName.substring(1)}")
+#end
+package ${context.package}.model.$!{name.toLowerCase()};
+
+
+import lombok.Data;
+import java.util.Date;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
+/**
+ *
+ * ${context.genInfo.description}
+ * @版本： ${context.genInfo.version}
+ * @版权： ${context.genInfo.copyright}
+ * @作者： ${context.genInfo.createUser}
+ * @日期： ${context.genInfo.createDate}
+ */
+@Data
+public class $!{context.className}ListVO{
+    /** 主键 */
+    private String $!{peimaryKeyname};
+
+#foreach($field in ${context.tableModel.fields})
+#foreach($relField in ${context.columnList})
+    #set($Name=${field.field})
+    #set($fieldName=${field.fieldName})
+    #if(${relField.prop}==${Name})
+    /** ${fieldName} */
+    #set($type=${field.dataType.toLowerCase()})
+    #if(${type} =='localdatetime' || ${type} =='date'|| ${type} =='datetime'|| ${type} =='datetime2')
+    #set($type="Date")
+    //日期输出格式化
+    #foreach($formField in ${context.formDataList})
+    #if(${formField.format}=='yyyy-MM-dd' && ${field.field}==${formField.vModel})
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    #elseif(${formField.format}=='yyyy-MM-dd HH:mm' && ${field.field}==${formField.vModel})
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
+    #elseif(${formField.format}=='yyyy-MM-dd HH' && ${field.field}==${formField.vModel})
+    @JsonFormat(pattern = "yyyy-MM-dd HH")
+    #elseif(${formField.format}=='yyyy-MM' && ${field.field}==${formField.vModel})
+    @JsonFormat(pattern = "yyyy-MM")
+    #elseif(${formField.format}=='yyyy' && ${field.field}==${formField.vModel})
+    @JsonFormat(pattern = "yyyy")
+    #elseif(${formField.format}=='yyyy-MM-dd HH:mm:ss' && ${field.field}==${formField.vModel})
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    #elseif(${formField.config.jnpfKey}=="createTime" && ${field.field}==${formField.vModel})
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    #elseif(${formField.config.jnpfKey}=="modifyTime" && ${field.field}==${formField.vModel})
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    #end
+    #end
+    @JsonProperty("${Name}")
+    private ${type} ${Name};
+
+    #elseif(${type} =='nvarchar'||${type} =='nvarchar(max)'||${type} =='varchar'||${type} =='longtext'||${type} =='text')
+    #set($type="String")
+#foreach($formField in ${context.formDataList})
+    #if(${field.field}==${formField.vModel})
+        #if(${formField.multiple}=="true"|| ${formField.config.jnpfKey}=="checkbox")
+    @JsonProperty("${Name}")
+    private ${type}[] ${Name};
+
+        #else
+    @JsonProperty("${Name}")
+    private ${type} ${Name};
+
+        #end
+    #end
+#end
+    #elseif(${type}=='bigint'||${type}=='long')
+    #set($type="Integer")
+    @JsonProperty("${Name}")
+    private ${type} ${Name};
+    
+     #elseif(${type}=='int'||${type}=='number')
+    #set($type="Long")
+    @JsonProperty("${Name}")
+    private ${type} ${Name};
+
+    #else
+    @JsonProperty("${Name}")
+    private String ${Name};
+
+    #end
+    #end
+#end
+#end
+}

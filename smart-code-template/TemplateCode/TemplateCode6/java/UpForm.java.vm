@@ -1,0 +1,27 @@
+#set($name = "${context.className.toLowerCase()}")
+#set($pKeyName =${context.pKeyName.toLowerCase()})
+#if(${pKeyName.substring(0,2).toLowerCase()}=='f_')
+    #set($peimaryKeyName = "${pKeyName.substring(2,3).toUpperCase()}${pKeyName.substring(3)}")
+    #set($peimaryKeyname = "${pKeyName.substring(2,3).toLowerCase()}${pKeyName.substring(3)}")
+#else
+    #set($peimaryKeyName = "${pKeyName.substring(0,1).toUpperCase()}${pKeyName.substring(1)}")
+    #set($peimaryKeyname = "${pKeyName.substring(0,1).toLowerCase()}${pKeyName.substring(1)}")
+#end
+package ${context.package}.model.$!{name};
+
+
+import lombok.Data;
+
+/**
+ *
+ * ${context.genInfo.description}
+ * @版本： ${context.genInfo.version}
+ * @版权： ${context.genInfo.copyright}
+ * @作者： ${context.genInfo.createUser}
+ * @日期： ${context.genInfo.createDate}
+ */
+@Data
+public class $!{context.className}UpForm extends $!{context.className}CrForm{
+    /** 主键 */
+    private String $!{peimaryKeyname};
+}

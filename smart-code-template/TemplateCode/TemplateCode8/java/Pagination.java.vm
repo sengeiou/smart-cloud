@@ -1,0 +1,38 @@
+#set($moduleName = "${context.genInfo.className}")
+package ${context.package}.model;
+
+import lombok.Data;
+import smart.base.Pagination;
+import java.util.Date;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+/**
+ *
+ * ${context.genInfo.description}
+ * 版本: ${context.genInfo.version}
+ * 版权: ${context.genInfo.copyright}
+ * 作者： ${context.genInfo.createUser}
+ * 日期： ${context.genInfo.createDate}
+ */
+@Data
+public class ${context.className}Pagination extends Pagination {
+
+#foreach($fieLdsModel in ${context.searchList})
+    #set($vModel = "${fieLdsModel.prop}")
+    #set($jnpfkey = "${fieLdsModel.jnpfKey}")
+    #if(${jnpfkey}=='slider')
+    @JsonProperty("${vModel}")
+    private Integer ${vModel};
+
+    #elseif(${jnpfkey}=='date')
+    @JsonProperty("${vModel}")
+    private long  ${vModel};
+
+    #else
+    @JsonProperty("${vModel}")
+    private String ${vModel};
+
+    #end
+#end
+
+}

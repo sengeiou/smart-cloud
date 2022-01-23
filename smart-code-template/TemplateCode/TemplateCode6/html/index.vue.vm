@@ -1,0 +1,421 @@
+<template>
+    #if(${pKeyName.substring(0,2).toLowerCase()}=='f_')
+        #set($peimaryKeyname = "${pKeyName.substring(2).toLowerCase()}")
+    #else
+        #set($peimaryKeyname = "${pKeyName.toLowerCase()}")
+    #end
+    #set($sign='$')
+    #set($doc='.')
+    <div class="JNPF-common-layout">
+        #if(${context.columnData.type}==2&&${context.columnData.treeDictionary})
+            <div class="JNPF-common-layout-left">
+                #if(${context.columnData.treeTitle})
+                    <div class="JNPF-common-title">
+                        <h2>${context.columnData.treeTitle}</h2>
+                    </div>
+                #end
+                <el-tree :data="treeData" :props="defaultProps" default-expand-all highlight-current
+                         ref="treeBox" :expand-on-click-node="false" @node-click="handleNodeClick"
+                         class="JNPF-common-el-tree" node-key="id">
+        <span class="custom-tree-node" slot-scope="{ node, data }">
+          <i :class="data.icon"></i>
+          <span class="text">{{node.label}}</span>
+        </span>
+                </el-tree>
+            </div>
+        #end
+        <div class="JNPF-common-layout-center">
+            <el-row class="JNPF-common-search-box" :gutter="16">
+                <el-form @submit.native.prevent>
+                    #set($searchSize=$!{context.columnData.searchList})
+                    ##                    #set($search=1)
+                    #foreach($se in ${context.columnData.searchList})
+                        #set($serchFiled=${se.vModel})
+                        #if(${foreach.index}<3 && $searchSize.size()>0)
+                            <el-col :span="6">
+                                <el-form-item label="$se.config.label">
+                                    #set($jk=${se.config.jnpfKey})
+                                    #set($name="${se.config.props.label}")
+                                    #set($id="${se.config.props.value}")
+                                    #if($jk=='checkbox'||$jk=='select'||$jk=='radio')
+                                        <el-select v-model="query.${serchFiled}" placeholder="$!{se.placeholder}"
+                                                   clearable>
+                                            <el-option v-for="(item, index) in ${serchFiled}Options" :key="index"
+                                                       :label="item.${name}" :value="item.${id}"
+                                                       :disabled="item.disabled"></el-option>
+                                        </el-select>
+                                    #elseif($jk=='date')
+                                         <${se.config.tag}  v-model="query.${serchFiled}" placeholder="$!{se.placeholder}" value-format="timestamp"/>
+                                    #elseif($jk=='comInput'||$jk=='textarea'||$jk=='JNPFText'||$jk=='numInput'||$jk=='JNPFAmount'||$jk=='billRule'||$jk=='createUser'||$jk=='modifyUser'||$jk=='currOrganize'||$jk=='currDept'||$jk=='currPosition')
+                                        <el-input v-model="query.${serchFiled}" placeholder="$!{se.placeholder}" clearable>  </el-input>
+                                    #elseif($jk=='createTime'||$jk=='modifyTime')
+                                        <el-date-picker v-model="query.${serchFiled}" placeholder="选择时间" value-format="timestamp" format="yyyy-MM-dd"/>
+                                    #else
+                                        <${se.config.tag}  v-model="query.${serchFiled}" placeholder="$!{se.placeholder}
+                                        " clearable/>
+                                    #end
+                                </el-form-item>
+                            </el-col>
+                        #end
+                    #end
+                    #if( $searchSize.size()>3)
+                        <template v-if="showAll">
+                            #foreach($se in ${context.columnData.searchList})
+                                #set($serchFiled=${se.vModel})
+                                #if(${foreach.index}>=3)
+                                    <el-col :span="6">
+                                        <el-form-item label="$se.config.label">
+                                            #set($jk=${se.config.jnpfKey})
+                                            #set($name="${se.config.props.label}")
+                                            #set($id="${se.config.props.value}")
+                                            #if($jk=='checkbox'||$jk=='select'||$jk=='radio')
+                                                <el-select v-model="query.${serchFiled}"
+                                                           placeholder="$!{se.placeholder}" clearable>
+                                                    <el-option v-for="(item, index) in ${serchFiled}Options"
+                                                               :key="index" :label="item.${name}" :value="item.${id}"
+                                                               :disabled="item.disabled"></el-option>
+                                                </el-select>
+                                            #elseif($jk=='date')
+                                                <${se.config.tag}  v-model="query.${serchFiled}"
+                                                placeholder="$!{se.placeholder}" value-format="timestamp" format="${se.format}"/>
+                                                #else
+                                                <${se.config.tag}  v-model="query.${serchFiled}"
+                                                placeholder="$!{se.placeholder}" clearable/>
+                                            #end
+                                        </el-form-item>
+                                    </el-col>
+                                #end
+                            #end
+                        </template>
+                    #end
+                    <el-col :span="6">
+                        <el-form-item>
+                            <el-button type="primary" icon="el-icon-search" @click="search()">查询</el-button>
+                            <el-button icon="el-icon-refresh-right" @click="reset()">重置</el-button>
+                            #if($searchSize.size()>3)
+                                <el-button type="text" icon="el-icon-arrow-down" @click="showAll=true" v-if="!showAll">
+                                    展开
+                                </el-button>
+                                <el-button type="text" icon="el-icon-arrow-up" @click="showAll=false" v-else>
+                                    收起
+                                </el-button>
+                            #end
+                        </el-form-item>
+                    </el-col>
+                </el-form>
+            </el-row>
+            <div class="JNPF-common-layout-main JNPF-flex-main">
+                <div class="JNPF-common-head">
+                    <div>
+                        #set($btsSize=$!{context.columnData.btnsList})
+                        #if($btsSize.size()>0)
+                            #foreach($bts in ${context.columnData.btnsList})
+                                #if(${bts.value}=='add')
+                                    <el-button type="primary" icon="${bts.icon}"
+                                               @click="addOrUpdateHandle()">${bts.label}
+                                    </el-button>
+                                #elseif(${bts.value}=='print')
+                                    <el-button type="text" icon="${bts.icon}" @click="print()">${bts.label}
+                                    </el-button>
+                                #elseif(${bts.value}=='upload')
+                                    <el-button type="text" icon="${bts.icon}" @click="upload()">${bts.label}
+                                    </el-button>
+                                #elseif(${bts.value}=='download')
+                                    <el-button type="text" icon="${bts.icon}" @click="exportData()">${bts.label}
+                                    </el-button>
+                                #end
+                            #end
+                        #end
+                    </div>
+                    <div class="JNPF-common-head-right">
+                        <el-tooltip effect="dark" content="刷新" placement="top">
+                            <el-link icon="icon-ym icon-ym-Refresh JNPF-common-head-icon" :underline="false"
+                                     @click="reset()"/>
+                        </el-tooltip>
+                        <screenfull :isContainer="true"/>
+                        <el-tooltip effect="dark" content="列设置" placement="top">
+                            <el-link icon="icon-ym icon-ym-options JNPF-common-head-icon" :underline="false"/>
+                        </el-tooltip>
+                    </div>
+                </div>
+                <JNPF-table v-loading="listLoading" :data="list">
+                    #set($columnListSize=$!{context.columnData.columnList})
+                    #if($columnListSize.size()>0)
+                        #foreach($columnField in ${context.columnData.columnList})
+                        #foreach($formField in ${context.fields})
+                            #if(${columnField.prop}==${formField.vModel}&&${formField.config.dataType}=='static')
+                            <el-table-column label="${columnField.label}" #if(${columnField.width})width="${columnField.width}"#end prop="${columnField.prop}" algin="${columnField.align}">
+                                <template slot-scope="scope">
+                                {{ scope.row.${columnField.prop} | dynamicText($!{formField.vModel}Options) }}
+                                </template>
+                            </el-table-column>
+                            #elseif(${columnField.prop}==${formField.vModel}&&${formField.config.jnpfKey}=='treeSelect')
+                            <el-table-column label="${columnField.label}" #if(${columnField.width})width="${columnField.width}"#end prop="${columnField.prop}" algin="${columnField.align}">
+                                <template slot-scope="scope">
+                                    {{ scope.row.${columnField.prop} | dynamicTreeText($!{formField.vModel}Options) }}
+                                </template>
+                            </el-table-column>
+                            #elseif(${columnField.prop}==${formField.vModel})
+                            <el-table-column prop="${columnField.prop}" label="${columnField.label}" #if(${columnField.width})width="${columnField.width}"#end align="${columnField.align}"/>
+                            #end
+                        #end
+                        #end
+                    #end
+                    #set($columnBtnsSize=$!{context.columnData.columnBtnsList})
+                    #if($columnBtnsSize.size()>0)
+                        <el-table-column label="操作" fixed="right"
+                                         #if($columnBtnsSize.size()==3)width="150" #elseif($columnBtnsSize.size()==2)
+                                         width="100" #else width="50" #end>
+                            <template slot-scope="scope">
+                                #foreach($columnBtns in ${context.columnData.columnBtnsList})
+                                    #if(${columnBtns.value}=='edit')
+                                        <el-button type="text"
+                                                   @click="addOrUpdateHandle(scope.row.${peimaryKeyname})">${columnBtns.label}
+                                        </el-button>
+                                    #elseif(${columnBtns.value}=='remove')
+                                        <el-button type="text" class="JNPF-table-delBtn"
+                                                   @click="handleDel(scope.row.${peimaryKeyname})">${columnBtns.label}
+                                        </el-button>
+                                    #elseif(${columnBtns.value}=='detail')
+                                        <el-button type="text"
+                                                   @click="addOrUpdateHandle(scope.row.${peimaryKeyname},true)">${columnBtns.label}
+                                        </el-button>
+                                    #end
+                                #end
+                            </template>
+                        </el-table-column>
+                    #end
+                </JNPF-table>
+                #if(${context.columnData.hasPage}==true)
+                    <pagination :total="total" :page.sync="listQuery.currentPage" :limit.sync="listQuery.pageSize" @pagination="initData"/>
+                #end
+            </div>
+        </div>
+        <JNPF-Form v-if="formVisible" ref="JNPFForm" @refresh="refresh"/>
+        <ExportBox v-if="exportBoxVisible" ref="ExportBox" @download="download"/>
+    </div>
+</template>
+
+<script>
+    import request from '@/utils/request'
+    import {getDictionaryDataSelector} from '@/api/systemData/dictionary'
+    import JNPFForm from './Form'
+    import ExportBox from './ExportBox'
+    import {previewDataInterface} from '@/api/systemData/dataInterface'
+
+    export default {
+        components: {JNPFForm, ExportBox},
+        data() {
+            return {
+                #if($searchSize.size()>3)
+                    showAll: false,
+                #end
+                query: {
+                    #if($searchSize.size()>0)
+                        #foreach($keyword in ${context.columnData.searchList})
+                            #set($serchFiled=${keyword.vModel})
+                            #set($maohao=':')
+                                ${serchFiled}${maohao}undefined,
+                        #end
+                    #end
+                },
+                defaultProps: {
+                    children: 'children',
+                    label: 'fullName'
+                },
+                list: [],
+                listLoading: true,
+                #if(${context.columnData.hasPage}==true)
+                    total: 0,
+                #end
+                listQuery: {
+                    #if(${context.columnData.hasPage}==true)
+                        currentPage: 1,
+                        pageSize: ${context.columnData.pageSize},
+                    #end
+                    sort: "${context.columnData.sort}",
+                    sidx: "${context.columnData.defaultSidx}",
+                },
+                formVisible: false,
+                exportBoxVisible: false,
+                columnList: [
+                    #foreach($columnField in ${context.columnData.columnList})
+                        {prop: '${columnField.prop}', label: '${columnField.label}'},
+                    #end
+                ],
+                #if(${context.columnData.type}==2&&${context.columnData.treeDictionary})
+                    treeData: [],
+                    treeActiveId: '',
+                #end
+                #foreach($key in ${context.columnData.searchList})
+                    #if(${key.config.dataType}=='dictionary'||${key.config.dataType}=='dynamic')
+                            ${key.vModel}Options: [],
+                    #elseif(${key.config.dataType}=='static'&& ${key.slot.options})
+                            $!{key.vModel}Options:${key.slot.options},
+                    #end
+                #end
+                #foreach($formField in ${context.fields})
+                    #foreach($columnField in ${context.columnData.columnList})
+                        #if(${columnField.prop}==${formField.vModel}&&${formField.config.dataType}=='static'&&${formField.config.jnpfKey}=='treeSelect')
+                $!{formField.vModel}Options:${formField.options},
+                        #elseif(${columnField.prop}==${formField.vModel}&&${formField.config.dataType}=='static')
+                $!{formField.vModel}Options:${formField.slot.options},
+                        #end
+                    #end
+                #end
+            }
+        },
+        computed: {},
+        created() {
+            #if(${context.columnData.type}==2&&${context.columnData.treeDictionary})
+                this.getTreeView();
+            #else
+                this.initData()
+            #end
+            #foreach($key in ${context.columnData.searchList})
+                #if(${key.config.dataType}=='dictionary'||${key.config.dataType}=='dynamic')
+                    this.get$!{key.vModel}Options();
+                #end
+            #end
+        },
+        methods: {
+            #foreach($key in ${context.columnData.searchList})
+                #if(${key.config.dataType}=='dictionary')
+                    get$!{key.vModel}Options() {
+                        getDictionaryDataSelector('${key.config.dictionaryType}').then(res => {
+                            this.$!{key.vModel}Options = res.data.list
+                        })
+                    },
+                #elseif(${key.config.dataType}=='dynamic')
+                    get$!{key.vModel}Options() {
+                        previewDataInterface('${key.config.propsUrl}').then(res => {
+                            this.${key.vModel}Options = res.data
+                        })
+                    },
+                #end
+            #end
+
+            #if(${context.columnData.type}==2 && ${context.columnData.treeDictionary})
+                getTreeView() {
+                    getDictionaryDataSelector('${context.columnData.treeDictionary}').then(res => {
+                        this.treeData = res.data.list
+                        this.$nextTick(() => {
+                            this.treeActiveId = this.treeData[0].id
+                            this.${sign}refs.treeBox.setCurrentKey(this.treeActiveId);
+                            this.initData()
+                        });
+                    })
+                },
+                handleNodeClick(data) {
+                    this.treeActiveId = data.id
+                    for (let key in this.query) {
+                        this.query[key] = undefined
+                    }
+                    this.query.${context.columnData.treeDbTableFieldRelation} = data.id
+                    this.listQuery = {
+                        #if(${context.columnData.hasPage}==true)
+                            currentPage: 1,
+                            pageSize: ${context.columnData.pageSize},
+                        #end
+                        sort: "${context.columnData.sort}",
+                        sidx: "${context.columnData.defaultSidx}",
+                    }
+                    this.initData()
+                },
+            #end
+            initData() {
+                this.listLoading = true;
+                let query = {
+                    ...this.listQuery,
+                    ...this.query
+                };
+                request({
+                    url: `/api/${context.module}/${context.className}`,
+                    method: 'get',
+                    data: query
+                }).then(res => {
+                    this.list = res.data.list
+                    #if(${context.columnData.hasPage}==true)
+                    this.total = res.data.pagination.total
+                    #end
+
+                    this.listLoading = false
+                })
+            },
+            #set($d='${id}')
+            handleDel(id) {
+                this.$confirm('此操作将永久删除该数据, 是否继续?', '提示', {
+                    type: 'warning'
+                }).then(() => {
+                    request({
+                        url: `/api/${context.module}/${context.className}/${d}`,
+                        method: 'DELETE'
+                    }).then(res => {
+                        this.$message({
+                            type: 'success',
+                            message: res.msg,
+                            onClose: () => {
+                                this.initData()
+                            }
+                        });
+                    })
+                }).catch(() => {
+                });
+            },
+            addOrUpdateHandle(id,isDetail) {
+                this.formVisible = true
+                this.$nextTick(() => {
+                    this.${sign}refs.JNPFForm.init(id,isDetail)
+                })
+            },
+            exportData() {
+                this.exportBoxVisible = true
+                this.$nextTick(() => {
+                    this.$refs${doc}ExportBox.init(this.columnList)
+                })
+            },
+            download(data) {
+                let query = {...data, ...this.listQuery, ...this.query}
+                request({
+                    url: `/api/${context.module}/${context.className}/Actions/Export`,
+                    method: 'GET',
+                    data: query
+                }).then(res => {
+                    if (!res.data.url) return
+                    window.location.href = this.define.comUrl + res.data.url
+                    this.$refs.ExportBox.visible = false
+                    this.exportBoxVisible = false
+                })
+            },
+            search() {
+                this.listQuery = {
+                    #if(${context.columnData.hasPage}==true)
+                        currentPage: 1,
+                        pageSize: ${context.columnData.pageSize},
+                    #end
+                    sort: "${context.columnData.sort}",
+                    sidx: "${context.columnData.defaultSidx}",
+                }
+                this.initData()
+            },
+            refresh(isrRefresh) {
+                this.formVisible = false
+                if (isrRefresh) this.reset()
+            },
+            reset() {
+                for (let key in this.query) {
+                    this.query[key] = undefined
+                }
+                this.listQuery = {
+                    #if(${context.columnData.hasPage}==true)
+                        currentPage: 1,
+                        pageSize: ${context.columnData.pageSize},
+                    #end
+                    sort: "${context.columnData.sort}",
+                    sidx: "${context.columnData.defaultSidx}",
+                }
+                this.initData()
+            }
+        }
+    }
+</script>

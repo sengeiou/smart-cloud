@@ -1,0 +1,41 @@
+package ${package.Service};
+
+import ${package.Entity}.${table.entityName};
+import ${superServiceClassPackage};
+import smart.exception.WorkFlowException;
+#if(${typeId}=='1')
+#foreach($grid in ${child})
+
+        #set($ChildService = "import ${package.Service}.${grid.className}Service;")
+        #set($ChildEntity = "import ${package.Entity}.${grid.className}Entity;")
+${ChildService}
+${ChildEntity}
+#end
+#end
+
+import java.util.*;
+
+/**
+ *
+ * ${genInfo.description}
+ * 版本： ${genInfo.version}
+ * 版权： ${genInfo.copyright}
+ * 作者： ${genInfo.createUser}
+ * 日期： ${genInfo.createDate}
+ */
+public interface ${table.serviceName} extends ${superServiceClass}<${table.entityName}> {
+
+    #if(${typeId}=='1')
+    #foreach($grid in ${child})
+    List<${grid.className}Entity> Get${grid.className}List(String id);
+
+    #end
+    ${table.entityName} getInfo(String id);
+
+    void Save(String id,String flowId, ${table.entityName} entity,String billNo#foreach($grid in ${child}), List<${grid.className}Entity> ${grid.className}List#end) throws WorkFlowException;
+
+    void Submit(String id, String freeUserId,String flowId,${table.entityName} entity,String billNo#foreach($grid in ${child}), List<${grid.className}Entity> ${grid.className}List#end) throws WorkFlowException;
+
+    void data(String id, String data);
+    #end
+}

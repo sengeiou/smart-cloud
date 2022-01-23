@@ -1,0 +1,360 @@
+#set($pKeyName = "${context.pKeyName}")
+<template>
+	<view class="page">
+		<view class="padding-bottom-150" style="padding-bottom: 150rpx;">
+            <form class="flowform">
+                <!-- 控件列表 -->
+                <view>
+                    #foreach($fieLdsModel in ${context.form})
+                        #set($jnpfKey = "${fieLdsModel.jnpfKey}")
+                        #set($isEnd = "${fieLdsModel.isEnd}")
+                        #if(${jnpfKey}=='card')
+                            #if(${isEnd}=='0')
+                    <view class="uni-flex-column" style="margin-bottom: 20rpx; width: 100%;height: 100%;background-color: #FFFFFF; padding: 20rpx 20rpx;border: 1px dashed #E3E3E5;">
+                        <view class="labelSty border-bottom-E3E3E5">
+                            <label for="">卡片</label>
+                        </view>
+                            #else
+                    </view>
+                            #end
+                        #elseif(${jnpfKey}=='mast')
+                            #set($html = $fieLdsModel.formColumnModel.fieLdsModel)
+                            #set($config = $html.config)
+                            #set($control = "${config.jnpfKey}")
+                            #set($model = "${html.vModel}")
+                            #set($placeholder = "${html.placeholder}")
+                            #set($show = $config.noShow)
+                            #if($show == false)
+                    <view>
+                            #set($components = "${control}")
+                            #if(${control}=='textarea')
+                                #set($components = "ymTextarea")
+                            #elseif($control=='radio' || $control=='checkbox' || $control=='select')
+                                #set($components = "staticSelect")
+                            #elseif($control=='time' || $control=='date')
+                                #set($components = "dateTime")
+                            #elseif($control=='treeSelect' || $control=='cascader')
+                                #set($components = "treeCascader")
+                            #elseif(${control} == 'createUser' || ${control} == 'currDept' || ${control} == 'createTime' || ${control} == 'modifyUser' || ${control} == 'modifyTime' ||${control} == 'currPosition' || ${control} == 'billRule')
+                                #set($components = "autoGenerate")
+                            #elseif($control=='uploadImg')
+                                #set($components = "JNPFUpload")
+                            #elseif($control=='slider')
+                                #set($components = "JNPFSlider")
+                            #elseif($control=='rate')
+                                #set($components = "JNPFRate")
+                            #elseif($control=='switch')
+                                #set($components = "JNPFSwitch")
+                            #elseif($control=='uploadFz')
+                                #set($components = "JNPFUpload")
+                            #end
+                        <$components#if(${components}!='rangeTime' && ${components}!='JNPFText' && ${components}!='comInput' && ${components}!='groupTitle' && ${components}!='JNPFRate' && ${components}!='JNPFSlider' && ${components}!='JNPFUpload' ) jnpfKey="${control}"#end
+                            #if($components == 'comInput') type="${components}"#end
+                            #if($model) v-model="formData.${model}"#end
+                            #if($control=='radio' || $control=='checkbox' || $control=='select') :options='${model}Options' vModel='${model}' dataType='${config.dataType}'#end
+                            #if($control=='posSelect') vModel='${model}' :postList='postList'#end
+                            #if($control=='userSelect') vModel='${model}' :userList='userList'#end
+                            #if($control=='depSelect') vModel='${model}' :depList='depList'#end
+                            #if($control=='comSelect') vModel='${model}' :comList='comList'#end
+                            #if($components=='treeCascader') vModel='${model}' :options='${model}Options'#end
+                            #if($components=='JNPFText') :textStyle='${html.textStyle}' defaultValue='${config.defaultValue}'#end
+                            #if(${config.showLabel} == true) :showLabel="${config.showLabel}"#end
+                            #if($config.label) label="${config.label}"#end
+                            #if($config.required) :required="${config.required}"#end
+                            #if($html.maxlength) :maxlength="${html.maxlength}"#end
+                            #if($html.min) :min="$html.min"#end
+                            #if($html.max) :max="$html.max"#end
+                            #if($html.step) :step="$html.step"#end
+                            #if($html.placeholder) placeholder="${html.placeholder}"#end>
+                        </$components>
+                    </view>
+                            #end
+                        #elseif(${jnpfKey}=='table')
+                            #set($child = $fieLdsModel.childList)
+                            #set($className = "")
+                            #foreach($children in ${context.children})
+                                #if(${children.tableModel}==${child.tableModel})
+                                    #set($className = "${children.className.substring(0,1).toLowerCase()}${children.className.substring(1).toLowerCase()}")
+                                #end
+                            #end
+                    <childTable :item='${className}' :options="${className}Option" :value="formData.${className}List"/>
+                        #end
+                    #end
+                </view>
+				<!-- 底部按钮 -->
+				<view class="buttom-box">
+					<view class="flow-button">
+						<button class="btn-same btn-keep" @tap='back'>{{cancelButtonText}}</button>
+						<button class="btn-same btn-submit" form-type="submit" @tap='save' :disabled="scanType">{{confirmButtonText}}</button>
+					</view>
+				</view>
+            </form>
+		</view>
+	</view>
+</template>
+
+<script>
+	import JNPFText from '@/components/JNPFText/JNPFText.vue'
+	import groupTitle from '@/components/groupTitle/groupTitle.vue'
+	import staticSelect from '@/components/staticSelect/staticSelect.vue'
+	import treeCascader from '@/components/treeCascader/treeCascader.vue'
+	import rangeTime from '@/components/range-picker/rangeTime.vue'
+	import addressSelect from '@/components/addressSelect/addressSelect.vue'
+	import comSelect from '@/components/comSelect/comSelect.vue'
+	import depSelect from '@/components/depSelect/depSelect.vue'
+	import userSelect from '@/components/userSelect/userSelect.vue'
+	import posSelect from '@/components/posSelect/posSelect.vue'
+	import ymTextarea from '@/components/ym-Textarea/ym-Textarea.vue'
+	import comInput from '@/components/comInput/comInput.vue'
+	import dateTime from '@/components/dateTime/dateTime.vue'
+	import autoGenerate from '@/components/autoGenerate/autoGenerate.vue'
+	import JNPFSlider from '@/components/JNPFSlider/JNPFSlider.vue'
+	import JNPFSwitch from '@/components/JNPFSwitch/JNPFSwitch.vue'
+	import JNPFRate from '@/components/JNPFRate/JNPFRate.vue'
+	import childTable from '@/components/childTable/childTable.vue'
+	import JNPFUpload from '@/components/JNPFUpload/JNPFUpload.vue'
+	import formControl from '@/components/formControl/formControl.vue'
+	import graceChecker from '@/common/js/graceChecker.js'
+	import flowbefore from '@/pages/apply/apply/work/flow-before.vue'
+	import helper from '@/common/js/helper.js'
+	import jnpf from '@/common/js/jnpf.js'
+	let rule=[
+	];
+	export default {
+		components: {
+			staticSelect,
+			treeCascader,
+			rangeTime,
+			addressSelect,
+			comSelect,
+			depSelect,
+			userSelect,
+			posSelect,
+			ymTextarea,
+			comInput,
+			dateTime,
+			autoGenerate,
+			JNPFSlider,
+			JNPFSwitch,
+			JNPFText,
+			groupTitle,
+			JNPFRate,
+			JNPFUpload,
+			childTable,
+			formControl,
+			flowbefore
+		},
+		name: 'formControl',
+		data(){
+			return {
+				formData: {
+					${pKeyName}:'',
+					flowid: '',
+					freeapproveruserid: '',
+					#foreach($fieLdsModel in ${context.fields})
+						#set($html = $fieLdsModel.formColumnModel.fieLdsModel)
+						#set($vModel = "${html.vModel}")
+						#set($config = $html.config)
+						#set($mastKey = "${config.jnpfKey}")
+						#if($mastKey!='JNPFText' && $mastKey!='divider')
+							#if($!config.valueType=='String')
+					$!{vModel} : "$!{config.defaultValue}",
+							#elseif($!config.valueType=='undefined')
+					$!{vModel} : '',
+							#else
+					$!{vModel} : $!{config.defaultValue},
+							#end
+						#end
+					#end
+					#foreach($child in ${context.children})
+						#set($className = "")
+						#foreach($children in ${context.children})
+							#if(${children.tableModel}==${child.tableModel})
+								#set($className = "${children.className.substring(0,1).toLowerCase()}${children.className.substring(1).toLowerCase()}")
+							#end
+						#end
+					${className}List:[],
+					#end
+				},
+				#foreach($child in ${context.children})
+					#set($className = "")
+					#foreach($children in ${context.children})
+						#if(${children.tableModel}==${child.tableModel})
+							#set($className = "${children.className.substring(0,1).toLowerCase()}${children.className.substring(1).toLowerCase()}")
+						#end
+					#end
+				${className}:${child.fieLdsModel},
+				#end
+				#foreach($fieLdsModel in ${context.fields})
+					#set($html = $fieLdsModel.formColumnModel.fieLdsModel)
+					#set($vModel = "${html.vModel}")
+					#set($config = $html.config)
+					#if(${config.dataType}=='dictionary' || ${config.dataType}=='dynamic')
+						#if(${config.dataType}=='dictionary')
+				${vModel}Options:jnpf.dictionaryData('${config.dictionaryType}'),
+						#else
+				${vModel}Options:[],
+						#end
+					#elseif($html.slot.appOptions)
+				${vModel}Options:${html.slot.appOptions},
+					#end
+				#end
+                #foreach($child in ${context.children})
+                    #set($className = "")
+                    #foreach($children in ${context.children})
+                        #if(${children.tableModel}==${child.tableModel})
+                            #set($className = "${children.className.substring(0,1).toLowerCase()}${children.className.substring(1).toLowerCase()}")
+                        #end
+                    #end
+                ${className}Option:{
+					#foreach($fieLdsModel in ${child.childList})
+                        #set($html = $fieLdsModel.fieLdsModel)
+                        #set($vModel = "${html.vModel}")
+                        #set($config = $html.config)
+                        #if(${config.dataType}=='dictionary'||${config.dataType}=='dynamic')
+                            #if(${config.dataType}=='dictionary')
+                    ${vModel}:jnpf.dictionaryData('${config.dictionaryType}'),
+							#else
+                    ${vModel}:[],
+							#end
+                        #elseif($html.slot.appOptions)
+                    ${vModel}:${html.slot.appOptions},
+						#end
+                        #if($html.options)
+                    ${vModel}:${html.options},
+						#end
+                        #if($html.Props)
+                    ${vModel}:${html.Props.Props},
+						#end
+                    #end
+				},
+				#end
+				controlProerty: { //控件属性
+					maxlength: 50,
+				},
+				depList: [],
+				comList: [],
+				userList: [],
+				posList: [],
+				rule:[],
+				cancelButtonText:'清空',
+				confirmButtonText:'提交',
+				id:'',
+				isId:'',
+			}
+		},
+		onLoad(e) {
+		    this.isId = Object.prototype.hasOwnProperty.call(e, 'id')
+            this.id = e.id
+			if(this.id){
+				this.init(this.id)
+			}
+		},
+		methods: {
+		    /* 初始化请求 */
+		    async init(id) {
+                helper.ajax({
+					url: '/api/${context.module}/${context.className}/' + flowInfo.id,
+					success: res => {
+						let _data = res.data.data;
+						this.formData = _data;
+						#foreach($fieLdsModel in ${context.fields})
+                            #set($html = $fieLdsModel.formColumnModel.fieLdsModel)
+                            #set($vModel = "${html.vModel}")
+                            #set($config = $html.config)
+                            #set($mastKey = "${config.jnpfKey}")
+                            #if(${mastKey}=='checkbox' || ${mastKey}=='timeRange' || ${mastKey}=='dateRange' || ${mastKey}=='address')
+						this.$set(this.formData,'${vModel}',JSON.parse(_data.${vModel}))
+									#elseif(${mastKey}=="uploadFz" || ${mastKey}=="uploadImg")
+						this.$set(this.formData,'${vModel}',JSON.parse(_data.${vModel}))
+									#elseif(${mastKey}=='select' || ${mastKey}=='cascader')
+                                        #if(${html.multiple}=='true')
+						this.$set(this.formData,'${vModel}',JSON.parse(_data.${vModel}))
+										#elseif(${html.multiple}=='false' && ${mastKey}=='cascader')
+						this.$set(this.formData,'${vModel}',JSON.parse(_data.${vModel}))
+										#end
+                                    #elseif(${mastKey}=='slider')
+                            #end
+                        #end
+					}
+				})
+		    },
+			/* 公司下拉数据 */
+			async comSelect() {
+				const res = await helper.ajaxPromise({
+					url: '/api/Permission/Organize/Selector',
+				})
+				let treedata = res.data.data.list;
+				this.comList = treedata;
+			},
+			/* 部门下拉数据 */
+			async depSelect() {
+				const res = await helper.ajaxPromise({
+					url: '/api/Permission/Organize/Department/Selector',
+				})
+				let treedata = res.data.data.list;
+				this.depList = treedata;
+			},
+			/* 岗位下拉数据 */
+			async postSelect() {
+				const res = await helper.ajaxPromise({
+					url: '/api/Permission/Position/Selector',
+				})
+				let treedata = res.data.data.list;
+				this.posList = treedata;
+			},
+
+			/* 用户下拉数据 */
+			async userSelect() {
+				const res = await helper.ajaxPromise({
+					url: '/api/Permission/Users/Selector',
+				})
+				let treedata = res.data.data.list;
+				this.userList = treedata;
+			},
+			/* 表单提交 */
+			save(e) {
+				let formData = this.formData
+				if (!graceChecker.check(formData, rule)) {
+					helper.msg(graceChecker.error);
+					return;
+				}
+				#foreach($fieLdsModel in ${context.fields})
+					#set($html = $fieLdsModel.formColumnModel.fieLdsModel)
+					#set($vModel = "${html.vModel}")
+					#set($config = $html.config)
+					#set($mastKey = "${config.jnpfKey}")
+					#if(${mastKey}=='checkbox' || ${mastKey}=='timeRange' || ${mastKey}=='dateRange' || ${mastKey}=='address')
+				this.$set(formData,'${vModel}',JSON.stringify(this.formData.${vModel}))
+					#elseif(${mastKey}=="uploadFz" || ${mastKey}=="uploadImg")
+				this.$set(formData,'${vModel}',JSON.stringify(this.formData.${vModel}))
+					#elseif(${mastKey}=='select' || ${mastKey}=='cascader')
+						#if(${html.multiple}=='true')
+				this.$set(formData,'${vModel}',JSON.stringify(this.formData.${vModel}))
+						#elseif(${html.multiple}=='false' && ${mastKey}=='cascader')
+				this.$set(formData,'${vModel}',JSON.stringify(this.formData.${vModel}))
+						#end
+					#elseif(${mastKey}=='slider')
+					#end
+				#end
+				let url = "/api/${context.module}/${context.className}";
+				let method = "POST";
+				if(this.isId){
+					method = "PUT";
+					url=url+"/"+this.${pKeyName};
+				}
+				helper.ajax({
+					url: url,
+					method: method,
+					contentType: "application/json",
+					data: formData,
+					success: res => {
+						helper.msg(res.data.msg, 'success');
+						uni.navigateBack();
+					}
+				});
+			},
+		},
+	}
+
+</script>

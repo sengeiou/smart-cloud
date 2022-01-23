@@ -1,0 +1,21 @@
+package smart.mapper;
+
+
+import smart.entity.${table.entityName};
+import ${superMapperClassPackage};
+
+/**
+ *
+ * ${genInfo.description}
+ * 版本： ${genInfo.version}
+ * 版权： ${genInfo.copyright}
+ * 作者： ${genInfo.createUser}
+ * 日期： ${genInfo.createDate}
+ */
+#if(${kotlin})
+interface ${table.mapperName} : ${superMapperClass}<${table.entity}>
+#else
+public interface ${table.mapperName} extends ${superMapperClass}<${table.entityName}> {
+
+}
+#end

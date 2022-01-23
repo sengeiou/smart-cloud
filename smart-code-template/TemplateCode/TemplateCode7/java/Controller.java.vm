@@ -1,0 +1,172 @@
+package ${package.Controller};
+
+import org.springframework.web.bind.annotation.RestController;
+#if(${superControllerClassPackage})
+import ${superControllerClassPackage};
+#end
+#set($modelClassName ="${genInfo.className.substring(0,1).toLowerCase()}${genInfo.className.substring(1)}")
+#if($isForm)
+#set($Form = "import smart.${isForm}.model.${modelClassName}.${genInfo.className}Form;")
+#set($InfoVo = "import smart.${isForm}.model.${modelClassName}.${genInfo.className}InfoVO;")
+#else
+#set($Form = "import smart.model.${genInfo.className}Form;")
+#set($InfoVo = "import smart.model.${genInfo.className}InfoVO;")
+#end
+
+${Form}
+${InfoVo}
+import ${package.Entity}.${table.entityName};
+import ${package.Service}.${table.serviceName};
+#foreach($grid in ${child})
+import ${package.Entity}.${grid.className}Entity;
+    #if($isForm)
+#set($childModel = "import smart.${isForm}.model.${modelClassName}.${grid.className}Model;")
+    #else
+#set($childModel = "import smart.model.${grid.className}Model;")
+    #end
+${childModel}
+#end
+import smart.base.util.*;
+import smart.util.*;
+import smart.base.UserInfo;
+import smart.base.service.BillRuleService;
+import smart.permission.service.UserService;
+import smart.permission.model.user.UserAllModel;
+import smart.exception.WorkFlowException;
+import smart.base.ActionResult;
+import smart.exception.DataException;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.*;
+import javax.validation.Valid;
+
+/**
+ *
+ * ${genInfo.description}
+ * 版本： ${genInfo.version}
+ * 版权： ${genInfo.copyright}
+ * 作者： ${genInfo.createUser}
+ * 日期： ${genInfo.createDate}
+ */
+@RestController
+@RequestMapping("/api/workflow/${module}/${genInfo.className}")
+public class ${table.controllerName} {
+
+    #set($serviceName = "${table.serviceName.substring(0,1).toLowerCase()}${table.serviceName.substring(1)}")
+    #set($formName = "${modelName.substring(0,1).toLowerCase()}${modelName.substring(1)}")
+    @Autowired
+    private ${table.serviceName} ${serviceName};
+    @Autowired
+    private UserProvider userProvider;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private BillRuleService billRuleService;
+
+    @GetMapping("/{id}")
+    public ActionResult Info(@PathVariable("id") String id) throws DataException{
+        List<UserAllModel> userList =  userService.getAll();
+        ${table.entityName} entity = ${table.serviceName.substring(0,1).toLowerCase()}${table.serviceName.substring(1)}.getInfo(id);
+        ${genInfo.className}InfoVO vo = JsonUtil.getJsonToBean(entity, ${genInfo.className}InfoVO.class);
+		#foreach($jnpfkey in ${system})
+            #set($model = "${jnpfkey.vModel.substring(0,1).toUpperCase()}${jnpfkey.vModel.substring(1)}")
+            #set($key = ${jnpfkey.config.jnpfKey})
+            #set($rule = ${jnpfkey.config.rule})
+			#if(${key}=='createUser')
+		UserAllModel createUser = userList.stream().filter(t -> t.getId().equals(vo.get${model}())).findFirst().orElse(new UserAllModel());
+        vo.set${model}(createUser.getRealName()!=null ? createUser.getRealName() : "");
+			#elseif(${key}=='modifyUser')
+		UserAllModel modifyUser = userList.stream().filter(t -> t.getId().equals(vo.get${model}())).findFirst().orElse(new UserAllModel());
+        vo.set${model}(modifyUser.getRealName()!=null ? modifyUser.getRealName() : "");
+			#elseif(${key}=='createTime')
+            #elseif(${key}=='modifyTime')
+			#elseif(${key}=='currDept')
+		UserAllModel currDept = userList.stream().filter(t -> t.getOrganizeId().equals(vo.get${model}())).findFirst().orElse(new UserAllModel());
+        vo.set${model}(currDept.getOrganize()!=null ? currDept.getOrganize() : "");
+			#elseif(${key}=='currPosition')
+		UserAllModel currPosition = userList.stream().filter(t -> t.getPositionId().equals(vo.get${model}())).findFirst().orElse(new UserAllModel());
+        vo.set${model}(currPosition.getPositionName()!=null ? currPosition.getPositionName() : "");
+			#end
+		#end
+		#foreach($grid in ${child})
+		List<${grid.className}Entity> ${grid.className}List = ${table.serviceName.substring(0,1).toLowerCase()}${table.serviceName.substring(1)}.Get${grid.className}List(id);
+		#set($list = "${grid.className.substring(0,1).toUpperCase()}${grid.className.substring(1).toLowerCase()}")
+		vo.set${list}List(JsonUtil.getJsonToList(${grid.className}List,${grid.className}Model.class ));
+		#end
+        return ActionResult.success(vo);
+    }
+
+    @PostMapping
+    public ActionResult Save(@RequestBody @Valid ${modelName}Form ${formName}Form) throws WorkFlowException , DataException {
+        UserInfo userInfo = userProvider.get();
+        String billRules = "";
+		#foreach($jnpfkey in ${system})
+			#set($model = "${jnpfkey.vModel.substring(0,1).toUpperCase()}${jnpfkey.vModel.substring(1)}")
+            #set($key = ${jnpfkey.config.jnpfKey})
+            #set($rule = ${jnpfkey.config.rule})
+            #if(${key}=='createUser')
+        ${formName}Form.set${model}(userInfo.getUserId());
+            #elseif(${key}=='createTime')
+        ${formName}Form.set${model}(DateUtil.getNow());
+            #elseif(${key}=='currDept')
+        ${formName}Form.set${model}(userInfo.getDepartmentId());
+            #elseif(${key}=='currOrganize')
+        ${formName}Form.set${model}(userInfo.getOrganizeId());
+            #elseif(${key}=='currPosition')
+        ${formName}Form.set${model}(userInfo.getPositionIds().length>0 ? userInfo.getPositionIds()[0] : "");
+            #elseif(${key}=='billRule')
+		billRules = billRuleService.getBillNumber("${rule}",false);
+        ${formName}Form.set${model}(billRules);
+            #end
+		#end
+		${table.entityName} entity = JsonUtil.getJsonToBean(${formName}Form, ${modelName}Entity.class);
+		#foreach($grid in ${child})
+		#set($list = "${grid.className.substring(0,1).toUpperCase()}${grid.className.substring(1).toLowerCase()}")
+		List<${grid.className}Entity> ${grid.className}List = JsonUtil.getJsonToList(${formName}Form.get${list}List(),${grid.className}Entity.class);
+		for(${grid.className}Entity entitys : ${grid.className}List){
+			#foreach($jnpfkey in ${grid.childList})
+			    #set($key = ${jnpfkey.fieLdsModel.config.jnpfKey})
+                #set($rule = ${jnpfkey.fieLdsModel.config.rule})
+				#set($model = "${jnpfkey.fieLdsModel.vModel.substring(0,1).toUpperCase()}${jnpfkey.fieLdsModel.vModel.substring(1)}")
+				#if(${key}=='billRule')
+			entitys.set${model}(billRuleService.getBillNumber("${rule}",false));
+				#end
+			#end
+		}
+		#end
+        if (${formName}Form.getStatus().equals("1")) {
+            ${table.serviceName.substring(0,1).toLowerCase()}${table.serviceName.substring(1)}.Save(null,${formName}Form.getFlowid(),entity,billRules#foreach($grid in ${child}), ${grid.className}List#end);
+            return ActionResult.success("保存成功");
+        }
+        ${table.serviceName.substring(0,1).toLowerCase()}${table.serviceName.substring(1)}.Submit(null, ${formName}Form.getFreeapproveruserid(),${formName}Form.getFlowid(),entity,billRules#foreach($grid in ${child}), ${grid.className}List#end);
+        return ActionResult.success("提交成功，请耐心等待");
+    }
+
+    @PutMapping("/{id}")
+    public ActionResult Submit(@PathVariable("id") String id,@RequestBody @Valid ${modelName}Form ${formName}Form) throws WorkFlowException , DataException {
+        UserInfo userInfo = userProvider.get();
+		String billRules = "";
+		#foreach($jnpfkey in ${system})
+            #set($model = "${jnpfkey.vModel.substring(0,1).toUpperCase()}${jnpfkey.vModel.substring(1)}")
+            #set($key = ${jnpfkey.config.jnpfKey})
+            #set($rule = ${jnpfkey.config.rule})
+            #if(${key}=='modifyUser')
+        ${formName}Form.set${model}(userInfo.getUserId());
+            #elseif(${key}=='modifyTime')
+        ${formName}Form.set${model}(DateUtil.getNow());
+            #end
+		#end
+		${table.entityName} entity = JsonUtil.getJsonToBean(${formName}Form, ${modelName}Entity.class);
+		#foreach($grid in ${child})
+		#set($list = "${grid.className.substring(0,1).toUpperCase()}${grid.className.substring(1).toLowerCase()}")
+		List<${grid.className}Entity> ${grid.className}List = JsonUtil.getJsonToList(${formName}Form.get${list}List(),${grid.className}Entity.class);
+		#end
+        if (${formName}Form.getStatus().equals("1")) {
+            ${table.serviceName.substring(0,1).toLowerCase()}${table.serviceName.substring(1)}.Save(id,${formName}Form.getFlowid(),entity,billRules#foreach($grid in ${child}), ${grid.className}List#end);
+            return ActionResult.success("保存成功");
+        }
+        ${table.serviceName.substring(0,1).toLowerCase()}${table.serviceName.substring(1)}.Submit(id, ${formName}Form.getFreeapproveruserid(),${formName}Form.getFlowid(),entity,billRules#foreach($grid in ${child}),${grid.className}List#end);
+        return ActionResult.success("提交成功，请耐心等待");
+    }
+}

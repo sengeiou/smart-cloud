@@ -1,0 +1,41 @@
+#set($moduleName = "${context.genInfo.className}")
+#if($context.isForm)
+    #set($package = "package ${context.package}.${context.isForm}.model.${moduleName};")
+#else
+    #set($package = "package ${context.package}.model.${moduleName};")
+#end
+${package}
+
+import lombok.Data;
+import java.util.List;
+import java.util.Date;
+import java.math.BigDecimal;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.alibaba.fastjson.annotation.JSONField;
+
+/**
+ *
+ * ${context.genInfo.description}
+ * 版本： ${context.genInfo.version}
+ * 版权: ${context.genInfo.copyright}
+ * 作者： ${context.genInfo.createUser}
+ * 日期： ${context.genInfo.createDate}
+ */
+@Data
+public class ${context.className}Model  {
+
+    #foreach($html in ${context.children.childList})
+        #set($jnpfkey = "${html.fieLdsModel.config.jnpfKey}")
+		#set($vModel = "${html.fieLdsModel.vModel}")
+        #if(${jnpfKey}=="date")
+	@JsonProperty("${vModel}")
+    private long  ${vModel};
+
+        #else
+	@JsonProperty("${vModel}")
+    private String ${vModel};
+
+        #end
+    #end
+
+}

@@ -1,0 +1,67 @@
+<template>
+  <el-dialog title="导入数据" :close-on-click-modal="false" :visible.sync="visible"
+    class="JNPF-dialog JNPF-dialog_center JNPF-Import-dialog" lock-scroll width="580px">
+    <el-row>
+      <el-col :span="12" class="grid-content">
+        <p>下载导入模板，填写数据</p>
+        <img src="../../../assets/images/xsl1.png" alt="">
+        <p>
+          <el-button type="primary" round @click="downLoad()">下载导入模板</el-button>
+        </p>
+      </el-col>
+      <el-col :span="12" class="grid-content">
+        <p>上传填写好的文件</p>
+        <img src="../../../assets/images/xsl1.png" alt="">
+        <p>
+          <el-upload :action="define.comUrl+'/api/${context.module}/${context.className}/importData'"
+            :headers="{ Authorize: $store.getters.token}" :on-success="handleSuccess"
+            :show-file-list="false" accept=".xls,.xlsx" :before-upload="beforeUpload">
+            <el-button type="primary" round :loading="btnLoading">上传文件</el-button>
+          </el-upload>
+        </p>
+      </el-col>
+    </el-row>
+  </el-dialog>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+      visible: false,
+      btnLoading: false,
+    }
+  },
+  methods: {
+    init() {
+      this.visible = true
+    },
+    // 下载模板
+    downLoad() {
+      request({
+        url: `/api/${context.module}/${context.className}/templateDownload`,
+        method: 'GET'
+      }).then(res => {
+        if (res.data.url) window.location.href = this.define.comUrl + res.data.url
+      })
+    },
+    beforeUpload() { this.btnLoading = true },
+    handleSuccess(res, file) {
+      this.btnLoading = false
+      if (res.code == 200) {
+        this.$message({
+          message: '导入成功',
+          type: 'success',
+          duration: 1000,
+          onClose: () => {
+            this.visible = false
+            this.$emit('refresh')
+          }
+        })
+      } else {
+        this.$message({ message: '导入失败', type: 'error', duration: 1000 })
+      }
+    }
+  }
+}
+</script>

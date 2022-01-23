@@ -1,0 +1,50 @@
+package ${package.Entity};
+
+#if(${entityLombokModel})
+import com.alibaba.fastjson.annotation.JSONField;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
+#end
+
+import java.util.Date;
+import java.math.BigDecimal;
+/**
+ *
+ * ${genInfo.description}
+ * 版本： ${genInfo.version}
+ * 版权： ${genInfo.copyright}
+ * 作者： ${genInfo.createUser}
+ * 日期： ${genInfo.createDate}
+ */
+#if(${entityLombokModel})
+@Data
+#end
+@TableName("${table.name}")
+public class ${table.entityName}  {
+
+#foreach($field in ${table.fields})
+    #set($tableField = "${field.name}")
+    #if(${tableField.substring(0,2).toLowerCase()}=='f_')
+        #set($Property = "${tableField.substring(2).toLowerCase()}")
+    #else
+        #set($Property = "${tableField.toLowerCase()}")
+    #end
+    #if(${field.keyFlag}=='true')
+    @TableId("${tableField.toUpperCase()}")
+    #else
+    @TableField("${tableField.toUpperCase()}")
+    #end
+    #if(${field.propertyType} =='LocalDateTime' || ${field.propertyType} =='Date')
+    @JsonProperty("${Property}")
+    private Date ${Property};
+    #else
+    @JsonProperty("${Property}")
+    private ${field.propertyType} ${Property};
+    #end
+
+#end
+
+}

@@ -1,0 +1,118 @@
+package ${package.Entity};
+
+#if(${entityLombokModel})
+import com.alibaba.fastjson.annotation.JSONField;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
+#end
+
+import java.math.BigDecimal;
+import java.util.Date;
+import com.fasterxml.jackson.annotation.JsonProperty;
+/**
+ *
+ * ${table.comment}
+ * @版本： ${genInfo.version}
+ * @版权： ${genInfo.copyright}
+ * @作者： ${genInfo.createUser}
+ * @日期： ${genInfo.createDate}
+ */
+#if(${entityLombokModel})
+@Data
+#end
+#if(${table.convert})
+@TableName("${table.name}")
+#end
+#if(${superEntityClass})
+public class ${table.entity} extends ${superEntityClass}#if(${activeRecord})<${table.entity}>#end {
+#elseif(${activeRecord})
+public class ${table.entity} extends Model<${table.entity}> {
+#else
+public class ${table.entityName}  {
+#end
+#foreach($field in ${table.fields})
+    #set($javaField = "${field.propertyName}")
+    #set($TableField = "${field.name}")
+    #set($EntityField = "${field.propertyName.substring(1)}")
+    #if(${TableField}==$!{pKeyName})
+    /** ${field.comment} */
+    @TableId("$!{pKeyName.toUpperCase()}")
+    #if(${TableField.substring(0,2).toLowerCase()}=='f_')
+    @JsonProperty("${TableField.substring(2).toLowerCase()}")
+    private String ${TableField.substring(2).toLowerCase()};
+
+    #else
+    private String ${TableField.toLowerCase()};
+
+    #end
+    #else
+    /** ${field.comment} */
+    @TableField("${TableField.toUpperCase()}")
+    #set($type=${field.type.toLowerCase()})
+    #if(${type} =='localdateTime' || ${type} =='date'|| ${type} =='datetime'|| ${type} =='datetime2')
+    #set($type="Date")
+    #if(${TableField.substring(0,2).toLowerCase()}=='f_')
+    @JsonProperty("${TableField.substring(2).toLowerCase()}")
+    private ${type} ${TableField.substring(2).toLowerCase()};
+
+    #else
+    private ${type} ${TableField.toLowerCase()};
+
+    #end
+    #elseif(${type} =='STRING')
+    #set($type="String")
+    #if(${TableField.substring(0,2).toLowerCase()}=='f_')
+    @JsonProperty("${TableField.substring(2).toLowerCase()}")
+    private ${type} ${TableField.substring(2).toLowerCase()};
+
+    #else
+    private ${type} ${TableField.toLowerCase()};
+
+    #end
+     #elseif(${type}=='INTEGER')
+    #set($type="Integer")
+    #if(${TableField.substring(0,2).toLowerCase()}=='f_')
+    @JsonProperty("${TableField.substring(2).toLowerCase()}")
+    private ${type} ${TableField.substring(2).toLowerCase()};
+
+    #else
+    private ${type} ${TableField.toLowerCase()};
+
+    #end
+
+    #elseif(${type}=='bigint(20)'||${type}=='LONG')
+    #set($type="Long")
+    #if(${TableField.substring(0,2).toLowerCase()}=='f_')
+    @JsonProperty("${TableField.substring(2).toLowerCase()}")
+    private ${type} ${TableField.substring(2).toLowerCase()};
+
+    #else
+    private ${type} ${TableField.toLowerCase()};
+
+    #end
+
+    #elseif(${type}=='BIG_DECIMAL')
+    #set($type="BigDecimal")
+    #if(${TableField.substring(0,2).toLowerCase()}=='f_')
+    @JsonProperty("${TableField.substring(2).toLowerCase()}")
+    private ${type} ${TableField.substring(2).toLowerCase()};
+
+    #else
+    private ${type} ${TableField.toLowerCase()};
+
+    #end
+    #else
+    #if(${TableField.substring(0,2).toLowerCase()}=='f_')
+    @JsonProperty("${TableField.substring(2).toLowerCase()}")
+    private String ${TableField.substring(2).toLowerCase()};
+
+    #else
+    private String ${TableField.toLowerCase()};
+
+    #end
+    #end
+    #end
+#end
+}

@@ -1,0 +1,66 @@
+#set($moduleName = "${context.genInfo.className}")
+package ${context.package}.model;
+
+import lombok.Data;
+import java.util.Date;
+import java.util.List;
+import java.math.BigDecimal;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.alibaba.fastjson.annotation.JSONField;
+#foreach($html in ${context.children})
+import ${context.package}.model.${html.className}Model;
+#end
+
+/**
+ *
+ * ${context.genInfo.description}
+ * 版本: ${context.genInfo.version}
+ * 版权: ${context.genInfo.copyright}
+ * 作者： ${context.genInfo.createUser}
+ * 日期： ${context.genInfo.createDate}
+ */
+@Data
+public class ${context.className}InfoVO  {
+
+    #foreach($fieLdsModel in ${context.fields})
+        #set($html = $fieLdsModel.formColumnModel.fieLdsModel)
+        #set($vModel = "${html.vModel}")
+        #set($config = $html.config)
+        #set($jnpfkey = "${config.jnpfKey}")
+        #if(${jnpfkey}!='JNPFText' && ${jnpfkey}!='divider')
+            #if(${jnpfkey}=='slider')
+    @JsonProperty("${vModel}")
+    private Integer ${vModel};
+
+            #elseif(${jnpfKey}=='createTime')
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonProperty("${vModel}")
+    private Date  ${vModel};
+
+            #elseif(${jnpfKey}=='modifyTime')
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonProperty("${vModel}")
+    private Date  ${vModel};
+
+            #elseif(${jnpfkey}=='date')
+    @JsonProperty("${vModel}")
+    private long  ${vModel};
+
+            #else
+    @JsonProperty("${vModel}")
+    private String ${vModel};
+
+            #end
+        #end
+    #end
+    #foreach($html in ${context.children})
+        #set($className = "${html.className.substring(0,1).toLowerCase()}${html.className.substring(1)}")
+    @JsonProperty("${className}List")
+    private List<${html.className}Model> ${className}List;
+
+    #end
+    #set($peimaryKeyName = "${context.pKeyName}")
+    @JsonProperty("${peimaryKeyName}")
+    private String ${peimaryKeyName};
+}

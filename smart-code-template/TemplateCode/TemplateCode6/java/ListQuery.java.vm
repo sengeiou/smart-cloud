@@ -1,0 +1,50 @@
+#set($name = "${context.className.substring(0,1).toLowerCase()}${context.className.substring(1)}")
+package ${context.package}.model.$!{name.toLowerCase()};
+
+
+import lombok.Data;
+import java.util.Date;
+import smart.base.Pagination;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
+/**
+ *
+ * ${context.genInfo.description}
+ * @版本： ${context.genInfo.version}
+ * @版权： ${context.genInfo.copyright}
+ * @作者： ${context.genInfo.createUser}
+ * @日期： ${context.genInfo.createDate}
+ */
+@Data
+public class $!{context.className}ListQuery extends Pagination {
+#foreach($field in ${context.tableModel.fields})
+#foreach($relField in ${context.searchList})
+#set($Name=${field.field})
+#set($fieldName=${field.fieldName})
+#if(${relField.vModel}==${Name})
+/** ${fieldName} */
+#set($type=${field.dataType.toLowerCase()})
+#if(${type} =='localdatetime' || ${type} =='date'|| ${type} =='datetime'|| ${type} =='datetime2')
+    #set($type="Long")
+    private ${type} ${Name};
+
+#elseif(${type} =='nvarchar'||${type} =='nvarchar(max)'||${type} =='varchar'||${type} =='longtext'||${type} =='text')
+    #set($type="String")
+    private ${type} ${Name};
+
+#elseif(${type}=='int'||${type}=='number')
+    #set($type="Integer")
+    private ${type} ${Name};
+
+#elseif(${type}=='bigint'||${type}=='long')
+    #set($type="Long")
+    private ${type} ${Name};
+
+#else
+    private String ${Name};
+
+#end
+#end
+#end
+#end
+}

@@ -1,0 +1,160 @@
+package ${package.ServiceImpl};
+
+import ${package.Entity}.${table.entityName};
+import ${package.Mapper}.${table.mapperName};
+import ${package.Service}.${table.serviceName};
+import ${superServiceImplClassPackage};
+#if(${typeId}=='1')
+#set($modelClassName ="${genInfo.className.substring(0,1).toLowerCase()}${genInfo.className.substring(1)}")
+import smart.model.${genInfo.className}Pagination;
+#foreach($grid in ${child})
+import ${package.Entity}.${grid.className}Entity;
+import ${package.Service}.${grid.className}Service;
+#end
+#end
+import smart.base.util.*;
+import smart.util.RandomUtil;
+import smart.util.StringUtil;
+import smart.util.UserProvider;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+
+import java.util.*;
+/**
+ *
+ * ${genInfo.description}
+ * 版本： ${genInfo.version}
+ * 版权： ${genInfo.copyright}
+ * 作者： ${genInfo.createUser}
+ * 日期： ${genInfo.createDate}
+ */
+@Service
+public class ${table.serviceImplName} extends ${superServiceImplClass}<${table.mapperName}, ${table.entityName}> implements ${table.serviceName} {
+
+    #if(${typeId}=='1')
+    #set($peimaryKeyName="${pKeyName.substring(0,1).toUpperCase()}${pKeyName.substring(1)}")
+    @Autowired
+    private UserProvider userProvider;
+    #foreach($grid in ${child})
+    #set($serviceName = "${grid.className.substring(0,1).toLowerCase()}${grid.className.substring(1)}")
+    @Autowired
+    private ${grid.className}Service ${serviceName}Service;
+    #end
+
+    #foreach($grid in ${child})
+    @Override
+    public List<${grid.className}Entity> Get${grid.className}List(String id){
+        #set($serviceName = "${grid.className.substring(0,1).toLowerCase()}${grid.className.substring(1)}")
+        #set($tableField = "${grid.tableField.substring(0,1).toUpperCase()}${grid.tableField.substring(1)}")
+        QueryWrapper<${grid.className}Entity> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(${grid.className}Entity::get${tableField}, id);
+        return ${serviceName}Service.list(queryWrapper);
+    }
+
+    #end
+    @Override
+    public List<${table.entityName}> getlist(${modelName}Pagination pagination){
+        QueryWrapper<${table.entityName}> queryWrapper = new QueryWrapper<>();
+        #if($searchList.size()>0)
+        if(StringUtil.isNotEmpty(pagination.getKeyword())){
+            queryWrapper.lambda().and(
+            #set($index =0)
+            #foreach($field  in ${searchList})
+                #set($jnpfKey = "${field.jnpfKey}")
+                #set($fieldName = "${field.prop.substring(0,1).toUpperCase()}${field.prop.substring(1)}")
+                #if(${index}==0)
+                t->t.like(${table.entityName}::get${fieldName},pagination.getKeyword())
+                #else
+                .or().like(${table.entityName}::get${fieldName},pagination.getKeyword())
+                #end
+                #set($index = $index+1)
+            #end
+            );
+        }
+        #end
+        //排序
+        if (StringUtils.isEmpty(pagination.getSidx())) {
+            #if(${defaultSidx})
+                #set($model = "${defaultSidx.substring(0,1).toUpperCase()}${defaultSidx.substring(1)}")
+                #set($Sort = "${sort.substring(0,1).toUpperCase()}${sort.substring(1)}")
+            queryWrapper.lambda().orderBy${Sort}(${table.entityName}::get${model});
+            #end
+        } else {
+            queryWrapper = "asc".equals(pagination.getSort().toLowerCase()) ? queryWrapper.orderByAsc(pagination.getSidx()) : queryWrapper.orderByDesc(pagination.getSidx());
+        }
+    #if(${page}=='0')
+        Page<${table.entityName}> page = new Page<>(pagination.getCurrentPage(), pagination.getPageSize());
+        IPage<${table.entityName}> userIPage = this.page(page, queryWrapper);
+        return pagination.setData(userIPage.getRecords(), page.getTotal());
+    #elseif(${page}=='1')
+        return this.list(queryWrapper);
+    #end
+    }
+
+    @Override
+    public ${table.entityName} getInfo(String id){
+        QueryWrapper<${table.entityName}> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(${table.entityName}::get${peimaryKeyName}, id);
+        return this.getOne(queryWrapper);
+    }
+
+    @Override
+    @Transactional
+    public void create(${table.entityName} entity#foreach($grid in ${child}), List<${grid.className}Entity> ${grid.className}List#end){
+        entity.set${peimaryKeyName}(RandomUtil.uuId());
+        this.save(entity);
+        #foreach($grid in ${child})
+            #set($serviceName = "${grid.className.substring(0,1).toLowerCase()}${grid.className.substring(1)}")
+        for(${grid.className}Entity entitys : ${grid.className}List){
+            #set($tableField = "${grid.tableField.substring(0,1).toUpperCase()}${grid.tableField.substring(1)}")
+            #set($relationField = "${grid.relationField.substring(0,1).toUpperCase()}${grid.relationField.substring(1)}")
+            #set($chidKeyName = "${grid.chidKeyName.substring(0,1).toUpperCase()}${grid.chidKeyName.substring(1)}")
+            entitys.set${chidKeyName}(RandomUtil.uuId());
+            entitys.set${tableField}(entity.get${relationField}());
+            ${serviceName}Service.save(entitys);
+        }
+        #end
+    }
+
+    @Override
+    @Transactional
+    public void update(String id, ${table.entityName} entity#foreach($grid in ${child}), List<${grid.className}Entity> ${grid.className}List#end){
+        entity.set${peimaryKeyName}(id);
+        this.updateById(entity);
+        #foreach($grid in ${child})
+            #set($tableField = "${grid.tableField.substring(0,1).toUpperCase()}${grid.tableField.substring(1)}")
+            #set($relationField = "${grid.relationField.substring(0,1).toUpperCase()}${grid.relationField.substring(1)}")
+            #set($chidKeyName = "${grid.chidKeyName.substring(0,1).toUpperCase()}${grid.chidKeyName.substring(1)}")
+            #set($serviceName = "${grid.className.substring(0,1).toLowerCase()}${grid.className.substring(1)}")
+        QueryWrapper<${grid.className}Entity> ${grid.className}queryWrapper = new QueryWrapper<>();
+        ${grid.className}queryWrapper.lambda().eq(${grid.className}Entity::get${tableField}, entity.get${relationField}());
+        ${serviceName}Service.remove(${grid.className}queryWrapper);
+        for(${grid.className}Entity entitys : ${grid.className}List){
+            entitys.set${chidKeyName}(RandomUtil.uuId());
+            entitys.set${tableField}(entity.get${relationField}());
+            ${serviceName}Service.save(entitys);
+        }
+        #end
+    }
+
+    @Override
+    public void delete(${table.entityName} entity) {
+        if (entity != null) {
+            this.removeById(entity.get${peimaryKeyName}());
+            #foreach($grid in ${child})
+                #set($tableField = "${grid.tableField.substring(0,1).toUpperCase()}${grid.tableField.substring(1)}")
+                #set($relationField = "${grid.relationField.substring(0,1).toUpperCase()}${grid.relationField.substring(1)}")
+                #set($chidKeyName = "${grid.chidKeyName.substring(0,1).toUpperCase()}${grid.chidKeyName.substring(1)}")
+                #set($serviceName = "${grid.className.substring(0,1).toLowerCase()}${grid.className.substring(1)}")
+            QueryWrapper<${grid.className}Entity> ${grid.className}queryWrapper = new QueryWrapper<>();
+            ${grid.className}queryWrapper.lambda().eq(${grid.className}Entity::get${tableField}, entity.get${relationField}());
+            ${serviceName}Service.remove(${grid.className}queryWrapper);
+            #end
+        }
+    }
+    #end
+}

@@ -1,0 +1,274 @@
+package ${package.ServiceImpl};
+
+import ${package.Entity}.${table.entityName};
+import ${package.Mapper}.${table.mapperName};
+import ${package.Service}.${table.serviceName};
+import ${superServiceImplClassPackage};
+import smart.util.RandomUtil;
+#if(${main})
+#set($packName = "${name.toLowerCase()}")
+#if($hasPage == true)
+import smart.model.${packName}.${Name}Pagination;
+#elseif($searchListSize.size()>0)
+import smart.model.${packName}.${Name}ListQuery;
+#end
+#end
+#foreach($subfield in ${subtables})
+    #set($ChildName="${subfield.subValue.substring(0,1).toUpperCase()}${subfield.subValue.substring(1)}")
+    #set($childName="${subfield.subValue.substring(0,1).toLowerCase()}${subfield.subValue.substring(1)}")
+import smart.entity.${ChildName}Entity;
+import smart.service.${ChildName}Service;
+#end
+import org.springframework.stereotype.Service;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import smart.util.*;
+import java.util.*;
+
+/**
+ *
+ * ${genInfo.description}
+ * 版本： ${genInfo.version}
+ * 版权： ${genInfo.copyright}
+ * 作者： ${genInfo.createUser}
+ * 日期： ${genInfo.createDate}
+ */
+@Service
+
+public class ${table.serviceImplName} extends ${superServiceImplClass}<${table.mapperName}, ${table.entityName}> implements ${table.serviceName} {
+#if(${main})
+    #if(${pKeyName.substring(0,2).toLowerCase()}=='f_')
+        #set($peimaryKeyName = "${pKeyName.substring(2,3).toUpperCase()}${pKeyName.substring(3).toLowerCase()}")
+        #set($peimaryKeyname = "${pKeyName.substring(2,3).toLowerCase()}${pKeyName.substring(3).toLowerCase()}")
+    #else
+        #set($peimaryKeyName = "${pKeyName.substring(0,1).toUpperCase()}${pKeyName.substring(1).toLowerCase()}")
+        #set($peimaryKeyname = "${pKeyName.substring(0,1).toLowerCase()}${pKeyName.substring(1).toLowerCase()}")
+    #end
+
+    @Autowired
+    private UserProvider userProvider;
+
+    #foreach($subfield in ${subtables})
+    @Autowired
+    #set($ChildName="${subfield.subValue.substring(0,1).toUpperCase()}${subfield.subValue.substring(1)}")
+    #set($childName="${subfield.subValue.substring(0,1).toLowerCase()}${subfield.subValue.substring(1)}")
+    private ${ChildName}Service ${childName}Service;
+
+    #end
+    #set($serviceName = "${table.serviceName.substring(0,1).toLowerCase()}${table.serviceName.substring(1)}")
+    #set($Name = "${genInfo.className.substring(0,1).toUpperCase()}${genInfo.className.substring(1)}")
+    #set($name = "${genInfo.className.substring(0,1).toLowerCase()}${genInfo.className.substring(1)}")
+    #set($Entity = "${table.entityName}")
+
+    #set($searchListSize =$!{searchList})
+    #if($hasPage == true)
+    @Override
+    public List<${Entity}> getList(${Name}Pagination ${name}Pagination){
+        String userId=userProvider.get().getUserId();
+        QueryWrapper<${Entity}> queryWrapper=new QueryWrapper<>();
+        //关键字（账户、姓名、手机）
+    #if($searchListSize.size()>0)
+        #foreach($field  in ${searchList})
+            #set($fieldName = "${field.vModel.substring(0,1).toUpperCase()}${field.vModel.substring(1)}")
+            #if(${field.config.jnpfKey}=="date")
+        if(!"null".equals(String.valueOf(${name}Pagination.get${fieldName}()))){
+            #if(${field.format}=='yyyy-MM-dd')
+            queryWrapper.lambda().eq(${Entity}::get${fieldName}, DateUtil.stringToDates(DateUtil.daFormat(${name}Pagination.get${fieldName}())));
+            #else
+            //起始日期-结束日期
+            String datefield=DateUtil.daFormat(${name}Pagination.get${fieldName}());
+            Date startTimes = DateUtil.stringToDate(datefield + " 00:00:00");
+            Date endTimes = DateUtil.stringToDate(datefield + " 23:59:59");
+            queryWrapper.lambda().ge(${Entity}::get${fieldName}, startTimes).le(${Entity}::get${fieldName}, endTimes);
+            #end
+        }
+            #else
+        if(!"null".equals(String.valueOf(${name}Pagination.get${fieldName}()))){
+            queryWrapper.lambda().and(t->t.like(${Entity}::get${fieldName},${name}Pagination.get${fieldName}()));
+        }
+            #end
+
+    #end
+    #end
+        //排序
+        if(StringUtil.isEmpty(${name}Pagination.getSidx())){
+    #if(${defaultSidx})
+    #set($model = "${defaultSidx.substring(0,1).toUpperCase()}${defaultSidx.substring(1)}")
+    #set($Sort = "${sort.substring(0,1).toUpperCase()}${sort.substring(1)}")
+            queryWrapper.lambda().orderBy${Sort}(${Entity}::get${model});
+    #else
+            queryWrapper.lambda().orderByDesc(${Entity}::get${peimaryKeyName});
+    #end
+        }else{
+            queryWrapper="asc".equals(${name}Pagination.getSort().toLowerCase())?queryWrapper.orderByAsc(${name}Pagination.getSidx()):queryWrapper.orderByDesc(${name}Pagination.getSidx());
+        }
+        Page<${Entity}> page=new Page<>(${name}Pagination.getCurrentPage(), ${name}Pagination.getPageSize());
+        IPage<${Entity}> userIPage=this.page(page,queryWrapper);
+        return ${name}Pagination.setData(userIPage.getRecords(),userIPage.getTotal());
+    }
+    @Override
+    public List<${Entity}> getTypeList(${Name}Pagination ${name}Pagination,String dataType){
+        QueryWrapper<${Entity}> queryWrapper=new QueryWrapper<>();
+        //关键字（账户、姓名、手机）
+#if($searchListSize.size()>0)
+#foreach($field  in ${searchList})
+#set($fieldName = "${field.vModel.substring(0,1).toUpperCase()}${field.vModel.substring(1)}")
+        #if(${field.config.jnpfKey}=="date")
+        if(!"null".equals(String.valueOf(${name}Pagination.get${fieldName}()))){
+            #if(${field.format}=='yyyy-MM-dd')
+            queryWrapper.lambda().eq(${Entity}::get${fieldName}, DateUtil.stringToDates(DateUtil.daFormat(${name}Pagination.get${fieldName}())));
+            #else
+            //起始日期-结束日期
+            String datefield=DateUtil.daFormat(${name}Pagination.get${fieldName}());
+            Date startTimes = DateUtil.stringToDate(datefield + " 00:00:00");
+            Date endTimes = DateUtil.stringToDate(datefield + " 23:59:59");
+            queryWrapper.lambda().ge(${Entity}::get${fieldName}, startTimes).le(${Entity}::get${fieldName}, endTimes);
+        #end
+        }
+        #else
+        if(!"null".equals(String.valueOf(${name}Pagination.get${fieldName}()))){
+            queryWrapper.lambda().and(t->t.like(${Entity}::get${fieldName},${name}Pagination.get${fieldName}()));
+        }
+        #end
+
+    #end
+    #end
+        //排序
+        if(StringUtil.isEmpty(${name}Pagination.getSidx())){
+    #if(${defaultSidx})
+    #set($model = "${defaultSidx.substring(0,1).toUpperCase()}${defaultSidx.substring(1)}")
+    #set($Sort = "${sort.substring(0,1).toUpperCase()}${sort.substring(1)}")
+            queryWrapper.lambda().orderBy${Sort}(${Entity}::get${model});
+    #else
+            queryWrapper.lambda().orderByDesc(${Entity}::get${peimaryKeyName});
+    #end
+        }else{
+            queryWrapper="asc".equals(${name}Pagination.getSort().toLowerCase())?queryWrapper.orderByAsc(${name}Pagination.getSidx()):queryWrapper.orderByDesc(${name}Pagination.getSidx());
+        }
+        if("0".equals(dataType)){
+            Page<${Entity}> page=new Page<>(${name}Pagination.getCurrentPage(), ${name}Pagination.getPageSize());
+            IPage<${Entity}> userIPage=this.page(page,queryWrapper);
+            return ${name}Pagination.setData(userIPage.getRecords(),userIPage.getTotal());
+        }else{
+            return this.list(queryWrapper);
+        }
+    }
+    #elseif($searchListSize.size()>0)
+    @Override
+    public List<${Entity}> getList(${Name}ListQuery  ${name}ListQuery){
+        String userId=userProvider.get().getUserId();
+        QueryWrapper<${Entity}> queryWrapper=new QueryWrapper<>();
+        //关键字（账户、姓名、手机）
+#if($searchListSize.size()>0)
+#foreach($field  in ${searchList})
+#set($fieldName = "${field.vModel.substring(0,1).toUpperCase()}${field.vModel.substring(1)}")
+        #if(${field.config.jnpfKey}=="date")
+        if(!"null".equals(String.valueOf(${name}ListQuery.get${fieldName}()))){
+        #if(${field.format}=='yyyy-MM-dd')
+            queryWrapper.lambda().eq(${Entity}::get${fieldName}, DateUtil.stringToDates(DateUtil.daFormat(${name}ListQuery.get${fieldName}())));
+        #else
+            //起始日期-结束日期
+            String datefield=DateUtil.daFormat(${name}ListQuery.get${fieldName}());
+            Date startTimes = DateUtil.stringToDate(datefield + " 00:00:00");
+            Date endTimes = DateUtil.stringToDate(datefield + " 23:59:59");
+            queryWrapper.lambda().ge(${Entity}::get${fieldName}, startTimes).le(${Entity}::get${fieldName}, endTimes);
+        #end
+        }
+        #else
+        if(!"null".equals(String.valueOf(${name}ListQuery.get${fieldName}()))){
+            queryWrapper.lambda().and(t->t.like(${Entity}::get${fieldName},${name}ListQuery.get${fieldName}()));
+        }
+        #end
+
+#end
+#end
+        return this.list(queryWrapper);
+    }
+    @Override
+    public List<${Entity}> getTypeList(${Name}ListQuery  ${name}ListQuery,String dataType){
+        QueryWrapper<${Entity}> queryWrapper=new QueryWrapper<>();
+        //关键字（账户、姓名、手机）
+#if($searchListSize.size()>0)
+#foreach($field  in ${searchList})
+#set($fieldName = "${field.vModel.substring(0,1).toUpperCase()}${field.vModel.substring(1)}")
+        #if(${field.config.jnpfKey}=="date")
+        if(!"null".equals(String.valueOf(${name}ListQuery.get${fieldName}()))){
+            #if(${field.format}=='yyyy-MM-dd')
+            queryWrapper.lambda().eq(${Entity}::get${fieldName}, DateUtil.stringToDates(DateUtil.daFormat(${name}ListQuery.get${fieldName}())));
+            #else
+            //起始日期-结束日期
+            String datefield=DateUtil.daFormat(${name}ListQuery.get${fieldName}());
+            Date startTimes = DateUtil.stringToDate(datefield + " 00:00:00");
+            Date endTimes = DateUtil.stringToDate(datefield + " 23:59:59");
+            queryWrapper.lambda().ge(${Entity}::get${fieldName}, startTimes).le(${Entity}::get${fieldName}, endTimes);
+        #end
+        }
+        #else
+        if(!"null".equals(String.valueOf(${name}ListQuery.get${fieldName}()))){
+            queryWrapper.lambda().and(t->t.like(${Entity}::get${fieldName},${name}ListQuery.get${fieldName}()));
+        }
+        #end
+
+    #end
+    #end
+        //排序
+        if(StringUtil.isEmpty(${name}ListQuery.getSidx())){
+    #if(${defaultSidx})
+    #set($model = "${defaultSidx.substring(0,1).toUpperCase()}${defaultSidx.substring(1)}")
+    #set($Sort = "${sort.substring(0,1).toUpperCase()}${sort.substring(1)}")
+            queryWrapper.lambda().orderBy${Sort}(${Entity}::get${model});
+    #else
+            queryWrapper.lambda().orderByDesc(${Entity}::get${peimaryKeyName});
+    #end
+        }else{
+            queryWrapper="asc".equals(${name}ListQuery.getSort().toLowerCase())?queryWrapper.orderByAsc(${name}ListQuery.getSidx()):queryWrapper.orderByDesc(${name}ListQuery.getSidx());
+        }
+            return this.list(queryWrapper);
+    }
+    #else
+    @Override
+    public List<${Entity}> getList(){
+        QueryWrapper<${Entity}> queryWrapper=new QueryWrapper<>();
+        queryWrapper.lambda().orderByAsc(${Entity}::getSortcode);
+        return this.list(queryWrapper);
+    }
+    #end
+
+    @Override
+    public ${Entity} getInfo(String ${peimaryKeyname}){
+        QueryWrapper<${Entity}> queryWrapper=new QueryWrapper<>();
+        queryWrapper.lambda().eq(${Entity}::get${peimaryKeyName},${peimaryKeyname});
+        return this.getOne(queryWrapper);
+    }
+
+    @Override
+    public void create(${Entity} entity){
+        this.save(entity);
+    }
+
+    @Override
+    public boolean update(String ${peimaryKeyname}, ${Entity} entity){
+        entity.set${peimaryKeyName}(${peimaryKeyname});
+        return this.updateById(entity);
+    }
+    @Override
+    public void delete(${Entity} entity){
+        if(entity!=null){
+            this.removeById(entity.get${peimaryKeyName}());
+        }
+    }
+    //子表方法
+    #foreach($subfield in ${subtables})
+    #set($ChildName="${subfield.subValue.substring(0,1).toUpperCase()}${subfield.subValue.substring(1)}Entity")
+    #set($childName="${subfield.subValue.substring(0,1).toLowerCase()}${subfield.subValue.substring(1)}")
+    @Override
+    public List<${ChildName}> get${ChildName}List(){
+        QueryWrapper<${ChildName}> queryWrapper=new QueryWrapper<>();
+        return ${childName}Service.list(queryWrapper);
+    }
+    #end
+    #end
+}

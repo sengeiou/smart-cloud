@@ -1,0 +1,79 @@
+#set($serviceName = "${table.serviceName.substring(0,1).toLowerCase()}${table.serviceName.substring(1)}")
+#set($Name = "${genInfo.className.substring(0,1).toUpperCase()}${genInfo.className.substring(1)}")
+#set($name = "${genInfo.className.substring(0,1).toLowerCase()}${genInfo.className.substring(1)}")
+#set($packName = "${name.toLowerCase()}")
+#set($searchListSize =$!{searchList})
+package ${package.Service};
+
+#foreach($tableModel in ${genInfo.dbTableRelation})
+#foreach($subfield in ${subtables})
+#if(${tableModel.table}==${subfield.subKey})
+    #set($ChildName="${subfield.subValue.substring(0,1).toUpperCase()}${subfield.subValue.substring(1)}")
+    #set($childName="${subfield.subValue.substring(0,1).toLowerCase()}${subfield.subValue.substring(1)}")
+import smart.entity.${ChildName}Entity;
+import smart.service.${ChildName}Service;
+#end
+#end
+#end
+import ${package.Entity}.${table.entityName};
+import ${superServiceClassPackage};
+#if(${main})
+#if($hasPage == true)
+import smart.model.${packName}.${Name}Pagination;
+#elseif($searchListSize.size()>0)
+import smart.model.${packName}.${Name}ListQuery;
+#end
+import java.util.*;
+#end
+/**
+ *
+ * ${genInfo.description}
+ * 版本： ${genInfo.version}
+ * 版权： ${genInfo.copyright}
+ * 作者： ${genInfo.createUser}
+ * 日期： ${genInfo.createDate}
+ */
+public interface ${table.serviceName} extends ${superServiceClass}<${table.entityName}> {
+
+#if(${main})
+    #if(${pKeyName.substring(0,2).toLowerCase()}=='f_')
+        #set($peimaryKeyname = "${pKeyName.substring(2,3).toLowerCase()}${pKeyName.substring(3)}")
+    #else
+        #set($peimaryKeyname = "${pKeyName.substring(0,1).toLowerCase()}${pKeyName.substring(1).toLowerCase()}")
+    #end
+    #if($hasPage == true)
+    List<${table.entityName}> getList(${Name}Pagination ${name}Pagination);
+
+    List<${table.entityName}> getTypeList(${Name}Pagination ${name}Pagination,String dataType);
+
+    #elseif($searchListSize.size()>0)
+    List<${table.entityName}> getList(${Name}ListQuery  ${name}ListQuery);
+
+    List<${table.entityName}> getTypeList(${Name}ListQuery  ${name}ListQuery,String dataType);
+
+    #else
+    List<${table.entityName}> getList();
+
+    #end
+
+    #foreach($grid in ${genInfo.indexGridEntry})
+      List<${table.entityName}> get${grid.className}List(String ${pKeyName.toLowerCase()});
+    #end
+
+    ${table.entityName} getInfo(String ${peimaryKeyname});
+
+    void delete(${table.entityName} entity);
+
+    void create(${table.entityName} entity);
+
+    boolean update( String ${peimaryKeyname}, ${table.entityName} entity);
+
+//  子表方法
+    #foreach($subfield in ${subtables})
+        #set($ChildName="${subfield.subValue.substring(0,1).toUpperCase()}${subfield.subValue.substring(1)}")
+        #set($childName="${subfield.subValue.substring(0,1).toLowerCase()}${subfield.subValue.substring(1)}")
+    List<${ChildName}Entity> get${ChildName}EntityList() ;
+
+    #end
+#end
+}

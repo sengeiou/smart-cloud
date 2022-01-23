@@ -1,0 +1,192 @@
+package ${package.Controller};
+
+import org.springframework.web.bind.annotation.RestController;
+#if(${superControllerClassPackage})
+import ${superControllerClassPackage};
+#end
+#set($modelClassName ="${genInfo.className.substring(0,1).toLowerCase()}${genInfo.className.substring(1)}")
+import smart.model.${genInfo.className}Pagination;
+import smart.model.${genInfo.className}Form;
+import smart.model.${genInfo.className}ListVO;
+import smart.model.${genInfo.className}InfoVO;
+import ${package.Entity}.${table.entityName};
+import ${package.Service}.${table.serviceName};
+#foreach($grid in ${child})
+import ${package.Entity}.${grid.className}Entity;
+import smart.model.${grid.className}Model;
+#end
+import smart.util.JsonUtil;
+import smart.util.StringUtil;
+import smart.util.UserProvider;
+import smart.base.vo.PaginationVO;
+import smart.base.UserInfo;
+import smart.base.vo.ListVO;
+import smart.base.util.*;
+import smart.base.service.BillRuleService;
+import smart.permission.service.UserService;
+import smart.permission.model.user.UserAllModel;
+import smart.base.ActionResult;
+import smart.exception.DataException;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.*;
+import javax.validation.Valid;
+
+/**
+ *
+ * ${genInfo.description}
+ * 版本： ${genInfo.version}
+ * 版权： ${genInfo.copyright}
+ * 作者： ${genInfo.createUser}
+ * 日期： ${genInfo.createDate}
+ */
+@RestController
+@RequestMapping("/api/${areasName}/${genInfo.className}")
+public class ${table.controllerName} {
+
+    #set($serviceName = "${table.serviceName.substring(0,1).toLowerCase()}${table.serviceName.substring(1)}")
+    #set($formName = "${modelName.substring(0,1).toLowerCase()}${modelName.substring(1)}")
+    @Autowired
+    private ${table.serviceName} ${serviceName};
+    @Autowired
+    private UserProvider userProvider;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private BillRuleService billRuleService;
+
+    @GetMapping("/List")
+    public ActionResult list(${modelName}Pagination pagination) {
+        List<UserAllModel> userList =  userService.getAll();
+        List<${table.entityName}> entity = ${table.serviceName.substring(0,1).toLowerCase()}${table.serviceName.substring(1)}.getlist(pagination);
+        for(${table.entityName} model : entity){
+            UserAllModel userAll = null;
+            #foreach($jnpfkey in ${system})
+                #set($model = "${jnpfkey.vModel.substring(0,1).toUpperCase()}${jnpfkey.vModel.substring(1)}")
+                #set($key = ${jnpfkey.config.jnpfKey})
+                #set($rule = ${jnpfkey.config.rule})
+                #if(${key}=='createUser')
+            userAll = userList.stream().filter(t -> t.getId().equals(model.get${model}())).findFirst().orElse(null);
+            if(userAll != null){
+                model.set${model}(userAll.getRealName());
+            }
+                #elseif(${key}=='currDept')
+            userAll = userList.stream().filter(t -> t.getDepartmentId().equals(model.get${model}())).findFirst().orElse(null);
+            if(userAll != null){
+                model.set${model}(userAll.getDepartment());
+            }
+                #elseif(${key}=='currOrganize')
+            userAll = userList.stream().filter(t -> t.getOrganizeId().equals(model.get${model}())).findFirst().orElse(null);
+            if(userAll != null){
+                model.set${model}(userAll.getOrganize());
+            }
+                #elseif(${key}=='currPosition')
+            userAll = userList.stream().filter(t -> t.getPositionId().equals(model.get${model}())).findFirst().orElse(null);
+            if(userAll != null){
+                model.set${model}(userAll.getPositionName());
+            }
+                #elseif(${key}=='modifyUser')
+            userAll = userList.stream().filter(t -> t.getId().equals(model.get${model}())).findFirst().orElse(null);
+            if(userAll != null){
+                model.set${model}(userAll.getRealName());
+            }
+                #end
+            #end
+        }
+        List<${genInfo.className}ListVO> listVo = JsonUtil.getJsonToList(entity,${genInfo.className}ListVO.class );
+    #if(${page}=='0')
+        PaginationVO vo = JsonUtil.getJsonToBean(pagination,PaginationVO.class);
+        return ActionResult.page(listVo,vo);
+    #elseif(${page}=='1')
+        ListVO vo = new ListVO();
+        vo.setList(listVo);
+        return ActionResult.success(vo);
+    #end
+    }
+
+    @GetMapping("/{id}")
+    public ActionResult info(@PathVariable("id") String id) {
+        List<UserAllModel> userList =  userService.getAll();
+        ${table.entityName} entity = ${table.serviceName.substring(0,1).toLowerCase()}${table.serviceName.substring(1)}.getInfo(id);
+        ${genInfo.className}InfoVO vo = JsonUtil.getJsonToBean(entity, ${genInfo.className}InfoVO.class);
+        #foreach($grid in ${child})
+        List<${grid.className}Entity> ${grid.className}List = ${table.serviceName.substring(0,1).toLowerCase()}${table.serviceName.substring(1)}.Get${grid.className}List(id);
+            #set($list = "${grid.className.substring(0,1).toUpperCase()}${grid.className.substring(1)}")
+        vo.set${list}List(JsonUtil.getJsonToList(${grid.className}List,${grid.className}Model.class ));
+        #end
+        return ActionResult.success(vo);
+    }
+
+    @PostMapping
+    public ActionResult create(@RequestBody @Valid ${modelName}Form ${formName}Form) throws DataException {
+        UserInfo userInfo = userProvider.get();
+        UserAllModel userModel =  userService.getAll().stream().filter(t->t.getId().equals(userInfo.getUserId())).findFirst().orElse(new UserAllModel());
+        #foreach($jnpfkey in ${system})
+            #set($model = "${jnpfkey.vModel.substring(0,1).toUpperCase()}${jnpfkey.vModel.substring(1)}")
+            #set($key = ${jnpfkey.config.jnpfKey})
+            #set($rule = ${jnpfkey.config.rule})
+            #if(${key}=='createUser')
+        ${formName}Form.set${model}(userInfo.getUserId());
+            #elseif(${key}=='createTime')
+        ${formName}Form.set${model}(DateUtil.getNow());
+            #elseif(${key}=='currDept')
+        ${formName}Form.set${model}(userInfo.getDepartmentId());
+            #elseif(${key}=='currOrganize')
+        ${formName}Form.set${model}(userInfo.getOrganizeId());
+            #elseif(${key}=='currPosition')
+        ${formName}Form.set${model}(userInfo.getPositionIds().length>0 ? userInfo.getPositionIds()[0] : "");
+            #elseif(${key}=='billRule')
+        ${formName}Form.set${model}(billRuleService.getBillNumber("${rule}",false));
+            #end
+        #end
+        ${table.entityName} entity = JsonUtil.getJsonToBean(${formName}Form, ${modelName}Entity.class);
+        #foreach($grid in ${child})
+            #set($list = "${grid.className.substring(0,1).toUpperCase()}${grid.className.substring(1).toLowerCase()}")
+        List<${grid.className}Entity> ${grid.className}List = JsonUtil.getJsonToList(${formName}Form.get${list}List(),${grid.className}Entity.class);
+        for(${grid.className}Entity entitys : ${grid.className}List){
+            #foreach($jnpfkey in ${grid.childList})
+                #set($key = ${jnpfkey.fieLdsModel.config.jnpfKey})
+                #set($rule = ${jnpfkey.fieLdsModel.config.rule})
+                #set($model = "${jnpfkey.fieLdsModel.vModel.substring(0,1).toUpperCase()}${jnpfkey.fieLdsModel.vModel.substring(1)}")
+                #if(${key}=='billRule')
+            entitys.set${model}(billRuleService.getBillNumber("${rule}",false));
+                #end
+            #end
+        }
+        #end
+        ${table.serviceName.substring(0,1).toLowerCase()}${table.serviceName.substring(1)}.create(entity#foreach($grid in ${child}),${grid.className}List#end);
+        return ActionResult.success("保存成功");
+    }
+
+    @PutMapping("/{id}")
+    public ActionResult update(@PathVariable("id") String id,@RequestBody @Valid ${modelName}Form ${formName}Form) {
+        UserInfo userInfo = userProvider.get();
+        UserAllModel userModel =  userService.getAll().stream().filter(t->t.getId().equals(userInfo.getUserId())).findFirst().orElse(new UserAllModel());
+        #foreach($jnpfkey in ${system})
+            #set($model = "${jnpfkey.vModel.substring(0,1).toUpperCase()}${jnpfkey.vModel.substring(1)}")
+            #set($key = ${jnpfkey.config.jnpfKey})
+            #set($rule = ${jnpfkey.config.rule})
+            #if(${key}=='modifyUser')
+        ${formName}Form.set${model}(userInfo.getUserId());
+            #elseif(${key}=='modifyTime')
+        ${formName}Form.set${model}(DateUtil.getNow());
+            #end
+        #end
+        ${table.entityName} entity = JsonUtil.getJsonToBean(${formName}Form, ${modelName}Entity.class);
+        #foreach($grid in ${child})
+            #set($list = "${grid.className.substring(0,1).toUpperCase()}${grid.className.substring(1).toLowerCase()}")
+        List<${grid.className}Entity> ${grid.className}List = JsonUtil.getJsonToList(${formName}Form.get${list}List(),${grid.className}Entity.class);
+        #end
+        ${table.serviceName.substring(0,1).toLowerCase()}${table.serviceName.substring(1)}.update(id,entity#foreach($grid in ${child}),${grid.className}List#end);
+        return ActionResult.success("修改成功");
+    }
+
+    @DeleteMapping("/{id}")
+    public ActionResult delete(@PathVariable("id") String id) {
+        ${table.entityName} entity = ${table.serviceName.substring(0,1).toLowerCase()}${table.serviceName.substring(1)}.getInfo(id);
+        ${table.serviceName.substring(0,1).toLowerCase()}${table.serviceName.substring(1)}.delete(entity);
+        return ActionResult.success("删除成功");
+    }
+
+}

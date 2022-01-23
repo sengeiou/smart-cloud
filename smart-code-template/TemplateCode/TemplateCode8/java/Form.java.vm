@@ -1,0 +1,55 @@
+#set($moduleName = "${context.genInfo.className}")
+package ${context.package}.model;
+
+import lombok.Data;
+import java.util.Date;
+import java.util.List;
+import java.math.BigDecimal;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.alibaba.fastjson.annotation.JSONField;
+#foreach($html in ${context.children})
+    #set($jnpfkey = "${context.config.jnpfKey}")
+import ${context.package}.model.${html.className}Model;
+#end
+
+
+/**
+ *
+ * ${context.genInfo.description}
+ * 版本: ${context.genInfo.version}
+ * 版权: ${context.genInfo.copyright}
+ * 作者： ${context.genInfo.createUser}
+ * 日期： ${context.genInfo.createDate}
+ */
+@Data
+public class ${context.className}Form  {
+
+    #foreach($fieLdsModel in ${context.fields})
+        #set($html = $fieLdsModel.formColumnModel.fieLdsModel)
+        #set($vModel = "${html.vModel}")
+        #set($config = $html.config)
+        #set($jnpfkey = "${config.jnpfKey}")
+        #if(${jnpfkey}!='JNPFText' && ${jnpfkey}!='divider')
+            #if(${jnpfkey}=='slider')
+    @JsonProperty("${vModel}")
+    private Integer ${vModel};
+
+            #elseif(${jnpfkey}=='date')
+    @JsonProperty("${vModel}")
+    private long  ${vModel};
+
+            #else
+    @JsonProperty("${vModel}")
+    private String ${vModel};
+
+            #end
+        #end
+    #end
+    #foreach($html in ${context.children})
+        #set($className = "${html.className.toLowerCase()}")
+    @JsonProperty("${className}List")
+    private List<${html.className}Model> ${className}List;
+
+    #end
+
+}

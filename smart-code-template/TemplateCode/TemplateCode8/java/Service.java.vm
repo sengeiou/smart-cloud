@@ -1,0 +1,42 @@
+package ${package.Service};
+
+import ${package.Entity}.${table.entityName};
+import ${superServiceClassPackage};
+import smart.base.*;
+#if(${typeId}=='1')
+#set($modelClassName ="${genInfo.className.substring(0,1).toLowerCase()}${genInfo.className.substring(1)}")
+import smart.model.${genInfo.className}Pagination;
+#foreach($grid in ${child})
+import ${package.Entity}.${grid.className}Entity;
+import ${package.Service}.${grid.className}Service;
+#end
+#end
+
+import java.util.*;
+
+/**
+ *
+ * ${genInfo.description}
+ * 版本： ${genInfo.version}
+ * 版权： ${genInfo.copyright}
+ * 作者： ${genInfo.createUser}
+ * 日期： ${genInfo.createDate}
+ */
+public interface ${table.serviceName} extends ${superServiceClass}<${table.entityName}> {
+
+    #if(${typeId}=='1')
+    #foreach($grid in ${child})
+    List<${grid.className}Entity> Get${grid.className}List(String id);
+
+    #end
+    List<${table.entityName}> getlist(${modelName}Pagination pagination);
+
+    ${table.entityName} getInfo(String id);
+
+    void create(${table.entityName} entity#foreach($grid in ${child}), List<${grid.className}Entity> ${grid.className}List#end);
+
+    void update(String id, ${table.entityName} entity#foreach($grid in ${child}), List<${grid.className}Entity> ${grid.className}List#end);
+
+    void delete(${table.entityName} entity);
+    #end
+}

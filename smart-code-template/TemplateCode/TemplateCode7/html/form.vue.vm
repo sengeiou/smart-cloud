@@ -1,0 +1,636 @@
+#set($pKeyName = "${context.pKeyName}")
+<template>
+	<div>
+		<el-row :gutter="${context.gutter}">
+		<el-form ref="${context.formRef}" :model="${context.formModel}" :rules="${context.formRules}" size="${context.size}" label-width="${context.labelWidth}px" label-position="${context.labelPosition}" #if($context.disabled == true ) :disabled="true" #else :disabled="setting.readonly" #end>
+		#foreach($fieLdsModel in ${context.form})
+			#set($jnpfKey = "${fieLdsModel.jnpfKey}")
+			#set($isEnd = "${fieLdsModel.isEnd}")
+			#if(${jnpfKey}=='row')
+				#if(${isEnd}=='0')
+			<el-col :span="${fieLdsModel.formModel.span}">
+			<el-row :gutter="${context.gutter}">
+				#else
+			</el-row>
+			</el-col>
+				#end
+			#elseif(${jnpfKey}=='card')
+				#if(${isEnd}=='0')
+			<el-card class="mb-20" shadow ="${fieLdsModel.formModel.shadow}">
+				#else
+			</el-card>
+				#end
+			#elseif(${jnpfKey}=='mast')
+				#set($html = $fieLdsModel.formColumnModel.fieLdsModel)
+				#set($vModel = "${html.vModel}")
+				#set($config = $html.config)
+				#set($mastKey = "${config.jnpfKey}")
+				#set($show = $config.noShow)
+				#if($show == false)
+			<el-col :span="${config.span}" v-if="JudgeShow('${vModel}')">
+				<el-form-item #if($config.showLabel && $config.showLabel == true)
+					#if($config.label) label="${config.label}"  #end
+					#if($config.labelWidth) label-width="${config.labelWidth}px"#end #else label-width="0"#end
+					#if($vModel) prop="${vModel}" #end #if($config.required == true)required #end>
+					<${config.tag} #if($vModel)  v-model="#if(${mastKey}==
+					'uploadFz'||${mastKey}=='uploadImg')${vModel}List #else dataForm.${vModel}#end"#end
+					#if($mastKey!='JNPFText')
+						#if($html.placeholder) placeholder="${html.placeholder}" #end
+					#else
+						#if($config.defaultValue) value="${config.defaultValue}"#end
+					#end
+					#if($html.maxlength) :maxlength="${html.maxlength}" #end
+					#if($html.readonly == true ) readonly #end
+					#if($html.disabled == true ):disabled="true" #else :disabled="JudgeWrite('${vModel}')" #end
+					#if($html.clearable == true ) clearable #end
+					#if($html.prefixicon) prefix-icon='${html.prefixicon}' #end
+					#if($html.suffixicon) suffix-icon='${html.suffixicon}' #end
+					#if($html.style) :style='${html.style}'#end
+					#if($html.showWordLimit == true ) ${html.showWordLimit} #end
+					#if($html.size) size="${html.size}" #end
+					#if($html.min) :min="${html.min}" #end
+					#if($html.max) :max="${html.max}" #end
+					#if($html.type) type="${html.type}" #end
+					#if($html.autosize) :autosize='${html.autosize}' #end
+					#if($html.step) :step="${html.step}" #end
+					#if($html.stepstrictly==true) stepstrictly #end
+					#if($html.textStyle) :textStyle='${html.textStyle}' #end
+					#if($html.lineHeight) :lineHeight="${html.lineHeight}" #end
+					#if($html.fontSize) :fontSize="${html.fontSize}" #end
+					#if($html.controlsposition) controls-position='${html.controlsposition}' #end
+					#if($html.showChinese) :showChinese="${html.showChinese}" #end
+					#if($html.showPassword) show-password #end
+					#if($html.filterable==true) filterable #end
+					#if($html.multiple) :multiple="${html.multiple}" #end
+					#if($html.separator) separator="${html.separator}" #end
+					#if($html.isrange==true) is-range #end
+					#if($html.rangeseparator) range-separator="${html.rangeseparator}" #end
+					#if($html.startplaceholder) start-placeholder="${html.startplaceholder}" #end
+					#if($html.endplaceholder) end-placeholder="${html.endplaceholder}" #end
+					#if($html.format) format="${html.format}" #end
+					#if($html.colorformat) color-format="${html.colorformat}" #end
+					#if($html.valueformat) value-format="${html.valueformat}" #end
+					#if($html.activetext) active-text="${html.activetext}" #end
+					#if($html.inactivetext) inactive-text="${html.inactivetext}" #end
+					#if($html.activecolor) active-color="${html.activecolor}" #end
+					#if($html.inactivecolor) inactive-color="${html.inactivecolor}" #end
+					#if($html.activevalue) active-value="${html.activevalue}" #end
+					#if($html.inactivevalue) inactive-value="${html.inactivevalue}" #end
+					#if($html.pickeroptions) :picker-options='${html.pickeroptions}'#end
+					#if($html.showScore == true ) show-score #end
+					#if($html.showText == true ) show-text #end
+					#if($html.allowhalf == true ) allow-half #end
+					#if($html.showAlpha == true ) show-alpha #end
+					#if($html.showStops == true ) show-stops #end
+					#if($html.range == true ) range #end
+					#if($html.showTip == true ) :showTip="${html.showTip}" #end
+					#if($html.accept) :accept="${html.accept}" #end
+					#if($html.fileSize) :fileSize="${html.fileSize}" #end
+					#if($html.sizeUnit) sizeUnit="${html.sizeUnit}" #end
+					#if($html.limit) :limit="${html.limit}" #end
+					#if($html.buttonText) buttonText="${html.buttonText}" #end
+					#if($html.contentposition) content-position="${html.contentposition}" #end
+					#if($html.content) :content="${html.content}" #end
+					#if($html.level) level=${html.level} #end
+					#if($mastKey=='cascader') :options="${vModel}Options" :props="${vModel}Props" #end>
+					#if($mastKey=='checkbox'||$mastKey=='radio'||$mastKey=='select')
+						#set($name="${config.props.label}")
+						#set($id="${config.props.value}")
+						#if($mastKey=='select')
+						<el-option v-for="(item, index) in ${html.vModel}Options" :key="index" :label="item.${name}" :value="item.${id}" :disabled="item.disabled" #if($config.border == true )border #end></el-option>
+						#else
+						<el-${mastKey}#if($config.optionType=="button")-button #end v-for="(item, index) in ${html.vModel}Options" :key="index" :label="item.${id}" :disabled="item.disabled" #if($config.border == true )border #end>
+							{{item.${name}}}
+						</el-${mastKey}#if($config.optionType=="button")-button #end>
+						#end
+					#end
+					#if($mastKey!='checkbox' && $mastKey!='radio' && $mastKey!='select')
+						#if($html.slot.prepend)
+						<template slot="prepend">${html.slot.prepend}</template>
+						#end
+						#if($html.slot.append)
+						<template slot="append">${html.slot.append}</template>
+						#end
+					#end
+					#if($mastKey=='divider')
+						$!{html.slot.defaultName}
+					#end
+					</${config.tag}>
+				</el-form-item>
+			</el-col>
+				#end
+			#else
+			#set($child = $fieLdsModel.childList)
+			#set($className = "")
+			#foreach($children in ${context.children})
+				#if(${children.tableModel}==${child.tableModel})
+				#set($className = "${children.className.substring(0,1).toLowerCase()}${children.className.substring(1).toLowerCase()}")
+				#end
+			#end
+			<el-col :span="${child.span}">
+				<el-form-item label-width="0">
+					#if($child.showTitle== true)
+					<div class="JNPF-common-title">
+						<h2>${child.label}</h2>
+					</div>
+					#end
+					<el-table :data="dataForm.${className}List" size='mini'>
+						<el-table-column type="index" width="50" label="序号" align="center" />
+						#foreach($html in ${child.childList})
+							#set($htmlChild = $html.fieLdsModel)
+							#set($model = "${htmlChild.vModel}")
+							#if(${model.substring(0,2).toLowerCase()}=='f_')
+								#set($vModel = "${model.substring(2).toLowerCase()}")
+							#else
+								#set($vModel = "${model.toLowerCase()}")
+							#end
+							#set($config = $htmlChild.config)
+							#set($tableKey = "${config.jnpfKey}")
+							<el-table-column prop="$!{vModel}" label="${config.label}">
+								<template slot-scope="scope">
+									<${config.tag}#if($vModel) v-model="scope.row.${vModel}"#end
+									#if($tableKey!='JNPFText')
+										#if($htmlChild.placeholder) placeholder="${htmlChild.placeholder}" #end
+									#else
+										#if($config.defaultValue) value="${config.defaultValue}"#end
+									#end
+									#if($htmlChild.maxlength) :maxlength="${htmlChild.maxlength}" #end
+									#if($htmlChild.readonly == true ) readonly #end
+									#if($htmlChild.disabled == true ):disabled="${htmlChild.disabled}"#end
+									#if($htmlChild.clearable == true ) clearable #end
+									#if($htmlChild.prefixicon) prefix-icon='${htmlChild.prefixicon}' #end
+									#if($htmlChild.suffixicon) suffix-icon='${htmlChild.suffixicon}' #end
+									#if($htmlChild.style) :style='${htmlChild.style}'#end
+									#if($htmlChild.showWordLimit == true ) ${htmlChild.showWordLimit} #end
+									#if($htmlChild.size) size="${htmlChild.size}" #end
+									#if($htmlChild.min) :min="${htmlChild.min}" #end
+									#if($htmlChild.max) :max="${htmlChild.max}" #end
+									#if($htmlChild.type) type="${htmlChild.type}" #end
+									#if($htmlChild.autosize) :autosize='${htmlChild.autosize}' #end
+									#if($htmlChild.step) :step="${htmlChild.step}" #end
+									#if($htmlChild.stepstrictly==true) stepstrictly #end
+									#if($htmlChild.textStyle) :textStyle='${htmlChild.textStyle}' #end
+									#if($htmlChild.lineHeight) :lineHeight="${htmlChild.lineHeight}" #end
+									#if($htmlChild.fontSize) :fontSize="${htmlChild.fontSize}" #end
+									#if($htmlChild.controlsposition) controls-position='${htmlChild.controlsposition}' #end
+									#if($htmlChild.showChinese) :showChinese="${htmlChild.showChinese}" #end
+									#if($htmlChild.showPassword) show-password #end
+									#if($htmlChild.filterable==true) filterable #end
+									#if($htmlChild.multiple) :multiple="${htmlChild.multiple}" #end
+									#if($htmlChild.separator) separator="${htmlChild.separator}" #end
+									#if($htmlChild.isrange==true) is-range #end
+									#if($htmlChild.rangeseparator) range-separator="${htmlChild.rangeseparator}" #end
+									#if($htmlChild.startplaceholder) start-placeholder="${htmlChild.startplaceholder}" #end
+									#if($htmlChild.endplaceholder) end-placeholder="${htmlChild.endplaceholder}" #end
+									#if($htmlChild.format) format="${htmlChild.format}" #end
+									#if($htmlChild.colorformat) color-format="${htmlChild.colorformat}" #end
+									#if($htmlChild.valueformat) value-format="${htmlChild.valueformat}" #end
+									#if($htmlChild.activetext) active-text="${htmlChild.activetext}" #end
+									#if($htmlChild.inactivetext) inactive-text="${htmlChild.inactivetext}" #end
+									#if($htmlChild.activecolor) active-color="${htmlChild.activecolor}" #end
+									#if($htmlChild.inactivecolor) inactive-color="${htmlChild.inactivecolor}" #end
+									#if($htmlChild.activevalue) active-value="${htmlChild.activevalue}" #end
+									#if($htmlChild.inactivevalue) inactive-value="${htmlChild.inactivevalue}" #end
+									#if($htmlChild.pickeroptions) :picker-options='${htmlChild.pickeroptions}'#end
+									#if($htmlChild.showScore == true ) show-score #end
+									#if($htmlChild.showText == true ) show-text #end
+									#if($htmlChild.allowhalf == true ) allow-half #end
+									#if($htmlChild.showAlpha == true ) show-alpha #end
+									#if($htmlChild.showStops == true ) show-stops #end
+									#if($htmlChild.range == true ) range #end
+									#if($htmlChild.showTip == true ) :showTip="${htmlChild.showTip}" #end
+									#if($htmlChild.accept) :accept="${htmlChild.accept}" #end
+									#if($htmlChild.fileSize) :fileSize="${htmlChild.fileSize}" #end
+									#if($htmlChild.sizeUnit) sizeUnit="${htmlChild.sizeUnit}" #end
+									#if($htmlChild.limit) :limit="${htmlChild.limit}" #end
+									#if($htmlChild.buttonText) buttonText="${htmlChild.buttonText}" #end
+									#if($htmlChild.contentposition) content-position="${htmlChild.contentposition}" #end
+									#if($htmlChild.level) level=${htmlChild.level} #end
+									#if($tableKey=='cascader') :options="${vModel}Options" :props="${vModel}Props" #end>
+									#if($tableKey=='checkbox'||$tableKey=='radio'||$tableKey=='select')
+										#set($name="${config.props.label}")
+										#set($id="${config.props.value}")
+										#if($tableKey=='select')
+											<el-option v-for="(item, index) in ${vModel}Options" :key="index" :label="item.${name}" :value="item.${id}" :disabled="item.disabled" #if($config.border == true )border #end></el-option>
+										#else
+										  <el-${tableKey}#if($config.optionType=="button")-button #end v-for="(item, index) in ${vModel}Options" :key="index" :label="item.${id}" :disabled="item.disabled" #if($config.border == true )border #end>
+											{{item.${name}}}
+										  </el-${tableKey}#if($config.optionType=="button")-button #end>
+										#end
+									#end
+									#if($tableKey!='checkbox' && $tableKey!='radio' && $tableKey!='select')
+										#if($htmlChild.slot.prepend)
+											<template slot="prepend">${htmlChild.slot.prepend}</template>
+										#end
+										#if($htmlChild.slot.append)
+											<template slot="append">${htmlChild.slot.append}</template>
+										#end
+									#end
+									#if($tableKey=='divider')
+										$!{htmlChild.slot.defaultName}
+									#end
+									</${config.tag}>
+								 </template>
+							</el-table-column>
+						#end
+						<el-table-column label="操作" width="50">
+							<template slot-scope="scope">
+								<el-button size="mini" type="text" class="JNPF-table-delBtn" @click="del${className}List(scope.$index)">删除</el-button>
+							</template>
+						</el-table-column>
+					</el-table>
+					<div class="table-actions" @click="add${className}List()">
+						<el-button type="text" icon="el-icon-plus">新增</el-button>
+					</div>
+				</el-form-item>
+			</el-col>
+			#end
+		#end
+		</el-form>
+		</el-row>
+		<UserBox v-if="userBoxVisible" ref="userBox" @submit="submit" />
+	</div>
+</template>
+<script>
+	import request from '@/utils/request'
+	import { previewDataInterface } from '@/api/systemData/dataInterface'
+	import { getDictionaryDataSelector } from '@/api/systemData/dictionary'
+	export default {
+		components: {},
+		props: [],
+		data() {
+			return {
+				visible: false,
+				setting:{},
+				eventType: '',
+				userBoxVisible:false,
+				dataForm: {
+					${pKeyName}:'',
+					flowid: '',
+					status: 1,
+					freeapproveruserid: '',
+					#foreach($fieLdsModel in ${context.fields})
+						#set($html = $fieLdsModel.formColumnModel.fieLdsModel)
+						#set($vModel = "${html.vModel}")
+						#set($config = $html.config)
+						#set($mastKey = "${config.jnpfKey}")
+						#if($mastKey!='JNPFText' && $mastKey!='divider')
+							#if($!config.valueType=='String')
+					$!{vModel} : "$!{config.defaultValue}",
+							#elseif($!config.valueType=='undefined')
+					$!{vModel} : '',
+							#else
+					$!{vModel} : $!{config.defaultValue},
+							#end
+						#end
+					#end
+					#foreach($child in ${context.children})
+						#set($className = "")
+						#foreach($children in ${context.children})
+							#if(${children.tableModel}==${child.tableModel})
+							#set($className = "${children.className.substring(0,1).toLowerCase()}${children.className.substring(1).toLowerCase()}")
+							#end
+						#end
+					${className}List:[],
+					#end
+				},
+				rules:
+				{
+					#foreach($fieLdsModel in ${context.fields})
+						#set($html = $fieLdsModel.formColumnModel.fieLdsModel)
+						#set($vModel = "${html.vModel}")
+						#set($config = $html.config)
+						#set($mastKey = "${config.jnpfKey}")
+						#set($listSize=$!{config.regList})
+						#set($defaultValue=${config.defaultValue})
+						#set($defaultValueSize=$!{config.defaultValue})
+						#set($trigger = ${config.trigger})
+						#if(${trigger.substring(0,1)}!='[')
+							#set($trigger = "'"+ ${config.trigger}+ "'")
+						#end
+						#if($mastKey!='JNPFText' && $mastKey!='divider')
+							#if(!$config.defaultValue && $config.defaultValue==[])
+								#set($messages='请至少选择一个')
+							#elseif(${config.defaultValue} && (${defaultValueSize} || $defaultValueSize.size()>0))
+								#set($messages='请至少选择一个')
+							#elseif($html.placeholder)
+								#set($messages=${html.placeholder})
+							#else
+								#set($messages='不能为空')
+							#end
+							#if($config.required==true|| (${listSize} && $listSize.size()>0))
+					${vModel}: [
+								#if($config.required==true)
+						{
+							required: true,
+							message: '$!{messages}',
+							trigger: ${trigger}
+						},
+									#if($listSize.size()>0)
+										#foreach($regList in ${config.regList})
+						{
+							pattern: ${regList.pattern},
+							message: '${regList.message}',
+							trigger: ${trigger}
+						},
+										#end
+									#end
+								#end
+					],
+							#end
+						#end
+					#end
+				},
+				#foreach($fieLdsModel in ${context.fields})
+					#set($html = $fieLdsModel.formColumnModel.fieLdsModel)
+					#set($vModel = "${html.vModel}")
+					#set($config = $html.config)
+					#set($mastKey = "${config.jnpfKey}")
+					#if(${mastKey}=='uploadFz'||${mastKey}=='uploadImg')
+				${vModel}List:[],
+					#end
+				#end
+				#foreach($fieLdsModel in ${context.fields})
+					#set($html = $fieLdsModel.formColumnModel.fieLdsModel)
+					#set($vModel = "${html.vModel}")
+					#set($config = $html.config)
+					#if(${config.dataType}=='dictionary'||${config.dataType}=='dynamic')
+				${vModel}Options:[],
+					#elseif($html.slot.options)
+				${vModel}Options:${html.slot.options},
+					#end
+					#if($html.options)
+				${vModel}Options:${html.options},
+					#end
+					#if($html.Props)
+				${vModel}Props:${html.Props.Props},
+					#end
+				#end
+				#foreach($child in ${context.children})
+					#foreach($fieLdsModel in ${child.childList})
+						#set($html = $fieLdsModel.fieLdsModel)
+						#set($vModel = "${html.vModel}")
+						#set($config = $html.config)
+						#if(${config.dataType}=='dictionary'||${config.dataType}=='dynamic')
+				${vModel}Options:[],
+						#elseif($html.slot.options)
+				${vModel}Options:${html.slot.options},
+						#end
+						#if($html.options)
+				${vModel}Options:${html.options},
+						#end
+						#if($html.Props)
+				${vModel}Props:${html.Props.Props},
+						#end
+					#end
+				#end
+			}
+		},
+		computed: {},
+        watch: {},
+		created() {
+            #foreach($fieLdsModel in ${context.fields})
+				#set($html = $fieLdsModel.formColumnModel.fieLdsModel)
+				#set($vModel = "${html.vModel}")
+				#set($config = $html.config)
+				#set($dataType = "${config.dataType}")
+				#if(${config.dataType}=='dictionary'||${config.dataType}=='dynamic')
+			this.get${vModel}Options();
+				#end
+			#end
+			#foreach($child in ${context.children})
+				#foreach($fieLdsModel in ${child.childList})
+					#set($html = $fieLdsModel.fieLdsModel)
+					#set($vModel = "${html.vModel}")
+					#set($config = $html.config)
+					#if(${config.dataType}=='dictionary'||${config.dataType}=='dynamic')
+			this.get${vModel}Options();
+					#end
+				#end
+			#end
+        },
+		mounted() {},
+		methods: {
+			#foreach($fieLdsModel in ${context.fields})
+				#set($html = $fieLdsModel.formColumnModel.fieLdsModel)
+				#set($vModel = "${html.vModel}")
+				#set($config = $html.config)
+				#set($dataType = "${config.dataType}")
+				#if(${dataType}=='dictionary')
+			get${vModel}Options() {
+				getDictionaryDataSelector('${config.dictionaryType}').then(res => {
+					this.${vModel}Options = res.data.list
+				})
+			},
+				#elseif(${dataType}=='dynamic')
+			get${vModel}Options() {
+				previewDataInterface('${config.propsUrl}').then(res => {
+					this.${vModel}Options = res.data
+				})
+			},
+				#end
+			#end
+			#foreach($child in ${context.children})
+				#foreach($fieLdsModel in ${child.childList})
+					#set($html = $fieLdsModel.fieLdsModel)
+					#set($vModel = "${html.vModel}")
+					#set($config = $html.config)
+					#set($dataType = "${config.dataType}")
+					#if(${dataType}=='dictionary')
+			get${vModel}Options() {
+				getDictionaryDataSelector('${config.dictionaryType}').then(res => {
+					this.${vModel}Options = res.data.list
+				})
+			},
+				#elseif(${dataType}=='dynamic')
+			get${vModel}Options() {
+				previewDataInterface('${config.propsUrl}').then(res => {
+					this.${vModel}Options = res.data
+				})
+			},
+					#end
+				#end
+			#end
+			#set($ref = "${context.formRef}")
+			#set($l = "'")
+			#set($c = "[")
+			#set($p = "]")
+			#if(${context.popupType}=='fullScreen')
+			goBack() {
+				this.$emit('refresh')
+			},
+			#end
+			init(data) {
+				this.loading = true
+				this.${context.formModel}.${pKeyName} = data.id || ''
+				this.setting = data
+				this.visible = true;
+				this.$nextTick(() => {
+					this.$refs${c}${l}${ref}${l}${p}.resetFields();
+					if(this.${context.formModel}.${pKeyName}){
+						request({
+							url: '/api/workflow/${context.module}/${context.className}/'+this.${context.formModel}.${pKeyName},
+							method: 'get'
+						}).then(res => {
+							this.${context.formModel} = res.data
+							#foreach($fieLdsModel in ${context.fields})
+								#set($html = $fieLdsModel.formColumnModel.fieLdsModel)
+								#set($vModel = "${html.vModel}")
+								#set($config = $html.config)
+								#set($mastKey = "${config.jnpfKey}")
+									#if(${mastKey}=='checkbox' || ${mastKey}=='timeRange' || ${mastKey}=='dateRange' || ${mastKey}=='address')
+							this.${context.formModel}.${vModel}= this.${context.formModel}.${vModel} ? this.${context.formModel}.${vModel}.split(','):[]
+									#elseif(${mastKey}=="uploadFz" || ${mastKey}=="uploadImg")
+							this.${vModel}List = JSON.parse(this.${context.formModel}.${vModel})
+									#elseif(${mastKey}=='select' || ${mastKey}=='cascader')
+										#if(${html.multiple}=='true')
+							this.$set(this.${context.formModel},'${vModel}',JSON.parse(this.${context.formModel}.${vModel}))
+										#elseif(${html.multiple}=='false' && ${mastKey}=='cascader')
+							this.${context.formModel}.${vModel}= this.${context.formModel}.${vModel} ? this.${context.formModel}.${vModel}.split(','):[]
+										#end
+									#elseif(${mastKey}=='slider')
+
+									#end
+							#end
+						})
+					}else{
+						this.${context.formModel}.flowid = data.flowId
+					}
+					this.loading = false
+				})
+			},
+			// 表单提交
+			dataFormSubmit(eventType) {
+				#foreach($fieLdsModel in ${context.fields})
+					#set($html = $fieLdsModel.formColumnModel.fieLdsModel)
+					#set($vModel = "${html.vModel}")
+					#set($config = $html.config)
+					#set($mastKey = "${config.jnpfKey}")
+					#if(${mastKey}=="uploadFz" || ${mastKey}=="uploadImg")
+				this.${context.formModel}.${vModel} = this.${vModel}List
+					#end
+				#end
+				this.$refs${c}${l}${ref}${l}${p}.validate((valid) => {
+					if (valid) {
+						if (eventType === 'audit' || eventType === 'reject') {
+            				this.$emit('approval', this.dataForm, eventType)
+            				return
+          				}
+						this.${context.formModel}.status = eventType === 'submit' ? 0 : 1
+						this.eventType = eventType
+						if (this.eventType === 'submit') {
+							if (this.setting.freeApprover == 0) {
+								this.$confirm('您确定要提交当前流程吗, 是否继续?', '提示', {
+								type: 'warning'
+								}).then(() => {
+									this.submit()
+								}).catch(() => { });
+							} else {
+								this.userBoxVisible = true
+								this.$nextTick(() => {
+									this.$refs.userBox.init()
+								})
+							}
+						} else {
+							this.request()
+						}
+					}
+				})
+			},
+			submit(freeapproveruserid) {
+				if (freeapproveruserid) this.${context.formModel}.freeapproveruserid = freeapproveruserid
+				this.request()
+			},
+			#set($mag ='$message')
+			request() {
+				#foreach($fieLdsModel in ${context.fields})
+					#set($html = $fieLdsModel.formColumnModel.fieLdsModel)
+					#set($vModel = "${html.vModel}")
+					#set($config = $html.config)
+					#set($mastKey = "${config.jnpfKey}")
+					#if(${mastKey}=='checkbox' || ${mastKey}=='timeRange' || ${mastKey}=='dateRange' || ${mastKey}=='address')
+				this.${context.formModel}.${vModel} = JSON.stringify(this.${context.formModel}.${vModel})
+					#elseif(${mastKey}=="uploadFz" || ${mastKey}=="uploadImg")
+				this.${context.formModel}.${vModel} = JSON.stringify(this.${vModel}List)
+					#elseif(${mastKey}=='select' || ${mastKey}=='cascader')
+						#if(${html.multiple}=='true')
+				this.${context.formModel}.${vModel} = JSON.stringify(this.${context.formModel}.${vModel})
+						#elseif(${html.multiple}=='false' && ${mastKey}=='cascader')
+				this.${context.formModel}.${vModel} = JSON.stringify(this.${context.formModel}.${vModel})
+						#end
+					#elseif(${mastKey}=='slider')
+					#end
+				#end
+				if (!this.${context.formModel}.${pKeyName}) {
+					delete (this.${context.formModel}.${pKeyName})
+					request({
+						url: '/api/workflow/${context.module}/${context.className}',
+						method: 'post',
+						data: this.${context.formModel}
+					}).then((res) => {
+						this.$mag({
+							message: res.msg,
+							type: 'success',
+							duration: 1000,
+							onClose: () => {
+								this.visible = false
+								this.$emit('close', true)
+							}
+						})
+					})
+				}else{
+					request({
+						url: '/api/workflow/${context.module}/${context.className}/'+this.dataForm.${pKeyName},
+						method: 'PUT',
+						data: this.${context.formModel}
+					}).then((res) => {
+						this.$mag({
+							message: res.msg,
+							type: 'success',
+							duration: 1000,
+							onClose: () => {
+								this.visible = false
+								this.$emit('close', true)
+							}
+						})
+					})
+				}
+			},
+			JudgeShow(id) {
+				if (!this.setting.formOperates || !this.setting.formOperates.length) return true
+				let arr = this.setting.formOperates.filter(o => o.id === id) || []
+				if (!arr.length) return true
+				let item = arr[0]
+				return item.read
+			},
+			JudgeWrite(id) {
+				if (!this.setting.formOperates || !this.setting.formOperates.length) return false
+				let arr = this.setting.formOperates.filter(o => o.id === id) || []
+				if (!arr.length) return true
+				let item = arr[0]
+				return !item.write
+			},
+			#foreach($child in ${context.children})
+				#set($className = "")
+				#foreach($children in ${context.children})
+					#if(${children.tableModel}==${child.tableModel})
+					#set($className = "${children.className.substring(0,1).toLowerCase()}${children.className.substring(1).toLowerCase()}")
+					#end
+				#end
+			add${className}List(){
+				let item = {
+					#foreach($html in ${child.childList})
+						#set($vModel = "${html.fieLdsModel.vModel}")
+					${vModel}:undefined,
+					#end
+				}
+				this.dataForm.${className}List.push(item)
+			},
+			del${className}List(index) {
+				this.dataForm.${className}List.splice(index, 1);
+			},
+			#end
+		},
+	}
+
+</script>

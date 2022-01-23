@@ -1,0 +1,288 @@
+#set($pKeyName = "${context.pKeyName}")
+<template>
+    <view>
+        <view class="search-input"><label class="iconfont icon-sousuo" />
+        <input type="text" confirm-type="search" v-model="search" @confirm="searchEvent" class="font-size24" placeholder="搜索" /></view>
+        <scroll-view class="content" scroll-y #if(${context.page}=='0') @scrolltolower="scrollButtonClick" #end id="height" :style="'height:' + height + 'px ;'">
+            <view class="jn-grid-list">
+                <view class="jn-staff-list-cell">
+                    <uni-swipe-action>
+                        <uni-swipe-action-item v-for="(item,index) in Lists" :options="options" :key="index" @click="removeDetils(item,index)">
+                            <view class="item" @click.stop="orderDetail(item)">
+                                <view class="jn-item-cell">
+                                    #foreach($html in ${context.column})
+                                    #set($prop = "${html.prop.substring(2,3).toLowerCase()}${html.prop.substring(3)}")
+                                    #set($label = "${html.label}")
+                                    <view class="jn-list-cell cell">
+                                        <view class="jn-item-cell-left">
+                                            <view class="color-3A3A3A">${label}:</view>
+                                            <view class="color-9A9A9A">{{item.${prop}}}</view>
+                                        </view>
+                                    </view>
+                                    #end
+                                </view>
+                            </view>
+                        </uni-swipe-action-item>
+                    </uni-swipe-action>
+                </view>
+            </view>
+        </scroll-view>
+    <uni-fab :pattern="pattern" :horizontal="horizontal" :vertical="vertical" :direction="direction" @creqateopen="creqateopen"></uni-fab>
+    </view>
+</template>
+
+<script>
+    import helper from '@/common/js/helper.js'
+    import uniFab from '@/components/uni-fab/uni-fab.vue';
+    import uniSwipeAction from '@/components/uni-swipe-action/uni-swipe-action.vue'
+    import uniSwipeActionItem from '@/components/uni-swipe-action-item/uni-swipe-action-item.vue'
+    export default {
+        data() {
+            return {
+                search: '',
+                pageSize: ${context.pageSize},
+                currentPage: 1,
+                sort:'${context.sort}',
+                total: 1,
+                height: 0,
+                Lists: [],
+                options: [{
+                    text: '删除',
+                    style:{
+                        backgroundColor: '#dd524d'
+                    }
+                }],
+                horizontal: 'right',
+                vertical: 'bottom',
+                direction: 'horizontal',
+                pattern:{
+                    color: '#7A7E83',
+                    backgroundColor: '#fff',
+                    selectedColor: '#007AFF',
+                    buttonColor: '#007AFF'
+                },
+                queryJson:{
+                    keyword: '',
+                },
+            }
+        },
+        onShow() {
+            this.Lists.length = 0;
+            this.init();
+            this.$forceUpdate();
+        },
+        methods: {
+            init() {
+                this.list();
+            },
+            list(){
+                helper.ajax({
+                    url: '/api/${context.module}/${context.className}/List',
+                    method: 'GET',
+                    data: {
+                        #if(${context.page}=='0')
+                        pageSize: this.pageSize, //每页行数
+                        currentPage: 1, //当前页
+                        sort: this.sort,
+                        #end
+                        keyword:this.queryJson.keyword,
+                    },
+                    success: res => {
+                        #if(${context.page}=='0')
+                        this.currentPage = 1;
+                        let _total = Math.ceil(res.data.data.pagination.total / res.data.data.pagination.pageSize)
+						this.total = _total;
+						#end
+                        let _data = res.data.data.list;
+                        for (let i = 0; i < _data.length; i++) {
+                            this.Lists.push({
+                                ${pKeyName}:_data[i].${pKeyName},
+                                 #foreach($html in ${context.column})
+                                    #set($name = "${html.prop.substring(2,3).toLowerCase()}${html.prop.substring(3)}")
+                                $!{name} : _data[i].${name},
+                                 #end
+                            })
+                        }
+                    }
+                })
+            },
+            #if(${context.page}=='0')
+            scrollButtonClick() {
+                uni.showLoading({
+                    title: '加载中...',
+                    mask: true
+                });
+                if (this.total > this.currentPage) {
+                    this.currentPage += 1;
+                    //触发求
+                    helper.ajax({
+                        url: '/api/${context.module}/${context.className}/List',
+                        method: 'GET',
+                        data: {
+                            pageSize: this.pageSize, //每页行数
+                            currentPage: this.currentPage, //当前页
+                            sort: this.sort,
+                            keyword:this.queryJson.keyword,
+                        },
+                        success: res => {
+                            let _total = Math.ceil(res.data.data.pagination.total / res.data.data.pagination.pageSize)
+						    this.total = _total;
+                            let _data = res.data.data.list;
+                            for (let i = 0; i < order.length; i++) {
+                                this.Lists.push({
+                                    ${pKeyName}:_data[i].${pKeyName},
+                                    #foreach($html in ${context.column})
+                                    #set($name = "${html.prop.substring(2,3).toLowerCase()}${html.prop.substring(3)}")
+                                    $!{name} : _data[i].${name},
+                                    #end
+                                })
+                            }
+                        }
+                    });
+                }
+                uni.hideLoading();
+            },
+            #end
+            orderDetail(item) {
+                uni.navigateTo({
+                    url: './form?id=' + item.${pKeyName}
+                })
+            },
+            removeDetils(item, index) {
+                helper.ajax({
+                    url: '/api/${context.module}/${context.className}/' + item.${pKeyName},
+                    method: 'Delete',
+                    success: res => {
+                        this.Lists.splice(index, 1);
+                        helper.msg(res.data.msg,'success');
+                    }
+                });
+            },
+            searchEvent(e) {
+				this.queryJson.keyword = e.detail.value;
+				this.Lists=[];
+				this.list();
+			},
+            creqateopen() {
+                uni.navigateTo({
+                    url: './form'
+                })
+            }
+        },
+        mounted() {
+            uni.getSystemInfo({
+                success: (res) => {
+                    this.height = res.windowHeight;
+                }
+            });
+        },
+        components: {
+            uniFab,
+            uniSwipeAction,
+            uniSwipeActionItem,
+        }
+    }
+</script>
+
+<style>
+    page {
+        background-color: #f0f2f6;
+    }
+    .search-input {
+        background: #FFFFFF;
+    }
+    .search-cell {
+        margin: 0 auto;
+        overflow: hidden;
+        height: 100upx;
+        align-content: center;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        background-color: #FFFFFF;
+        height: 100upx;
+    }
+    .search-item {
+        width: 68%;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .screen-btn {
+        background-color: #FFFFFF;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        color: #999999;
+    }
+    .screen-btn text {
+        padding-right: 10upx;
+    }
+	.item {
+		border-radius: 10upx;
+		width: 100%;
+		.jn-item-cell {
+			padding: 0;
+			background-color: #FFFFFF;
+
+			.jn-list-cell {
+				padding: 0 20upx;
+				margin-bottom: 10upx;
+				justify-content: space-between;
+
+				&.cell {
+					height: 48upx;
+				}
+			}
+		}
+
+		.head {
+			height: 66upx;
+			border-bottom: 1upx solid #e5e5e5;
+		}
+	}
+    .popup-box {
+        background-color: #fff;
+        box-sizing: border-box;
+    }
+    .staff {
+        width: 100%;
+        height: 96rpx;
+        display: flex;
+        background-color: #fff;
+        align-items: center;
+    }
+    .staffinfo {
+        width: 91%;
+        height: 100%;
+        font-size: 28rpx;
+        display: flex;
+        vertical-align: hiddle;
+        margin-left: 30rpx;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .staffname {
+        width: 30%;
+        display: flex;
+        white-space: nowrap;
+        align-items: center;
+        color: #3A3A3A;
+        font-size: 32rpx;
+    }
+    .radio {
+        padding-right: 7%;
+    }
+    picker-view {
+        width: 100%;
+        height: 396rpx;
+        margin-top: 20rpx;
+    }
+    .picker-item {
+        line-height: 100rpx;
+        text-align: center;
+    }
+</style>
