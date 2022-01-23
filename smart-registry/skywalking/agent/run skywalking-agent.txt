@@ -1,0 +1,4 @@
+# 部署
+nohup java -javaagent:/www/wwwroot/smart-registry/skywalking/agent/skywalking-agent.jar -Dskywalking.agent.service_name=smart-system -Dskywalking.collector.backend_service=localhost:11800 -jar smart-system-3.1.0-SNAPSHOT.jar > Log.log &
+1、skywalking-agent.jar 路径
+2、service_name 建议使用服务名

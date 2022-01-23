@@ -1,0 +1,1 @@
+nohup ./seata-server.sh -p 30095 > Log.log & 2>&1 &

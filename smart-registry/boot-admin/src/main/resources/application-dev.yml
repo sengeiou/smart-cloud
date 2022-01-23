@@ -1,0 +1,16 @@
+# 应用服务器
+server:
+  tomcat:
+    uri-encoding: UTF-8
+  port: 30097
+
+# Spring
+spring:
+  application:
+    # 应用名称
+    name: bootAdmin
+  security:
+    user:
+      name: admin
+      password: admin
+

@@ -1,0 +1,13 @@
+# Spring
+spring:
+  application:
+    # 应用名称
+    name: bootAdmin
+  profiles:
+    # 环境配置
+    active: dev
+  cloud:
+    nacos:
+      discovery:
+        # 服务注册地址
+        server-addr: 127.0.0.1:30099
