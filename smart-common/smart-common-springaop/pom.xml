@@ -25,12 +25,18 @@
             <artifactId>smart-common-redis</artifactId>
             <version>3.1.0-SNAPSHOT</version>
         </dependency>
-        <!--<dependency>
+        <dependency>
+            <groupId>com.smart</groupId>
+            <artifactId>smart-system-base-entity</artifactId>
+            <version>3.1.0-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
             <groupId>com.smart</groupId>
             <artifactId>smart-system-base-api</artifactId>
             <version>3.1.0-SNAPSHOT</version>
             <scope>compile</scope>
-        </dependency>-->
+        </dependency>
     </dependencies>
 
 </project>

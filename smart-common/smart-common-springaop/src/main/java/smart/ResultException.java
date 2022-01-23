@@ -2,7 +2,7 @@ package smart;
 
 import com.alibaba.fastjson.JSON;
 import smart.base.*;
-//import smart.base.entity.LogEntity;
+import smart.base.entity.LogEntity;
 import smart.exception.DataException;
 import smart.exception.LoginException;
 import smart.exception.WorkFlowException;
@@ -36,7 +36,7 @@ public class ResultException {
     @Autowired
     private RedisUtil redisUtil;
     @Autowired
-    //private LogApi logApi;
+    private LogApi logApi;
 
     @ResponseBody
     @ExceptionHandler(value = LoginException.class)
@@ -136,7 +136,7 @@ public class ResultException {
             String authorization = ServletUtil.getRequest().getHeader("Authorization");
             String token=JwtUtil.getRealToken(authorization);
             UserInfo info = JsonUtil.getJsonToBean(String.valueOf(redisUtil.getString(token)), UserInfo.class);
-           /* LogEntity entity = new LogEntity();
+            LogEntity entity = new LogEntity();
             entity.setId(RandomUtil.uuId());
             entity.setCategory(LogSortEnum.Operate.getCode());
             entity.setUserId(info.getUserId());
@@ -157,7 +157,7 @@ public class ResultException {
             entity.setIPAddress(IpUtil.getIpAddr());
             entity.setCreatorTime(new Date());
             entity.setPlatForm(ServletUtil.getUserAgent());
-            logApi.writeLogRequest(entity);*/
+            logApi.writeLogRequest(entity);
         }catch (Exception g){
             log.error(g.getMessage());
         }
@@ -173,7 +173,7 @@ public class ResultException {
             }
             String token = String.valueOf(redisUtil.getString(realToken));
             UserInfo info = JsonUtil.getJsonToBean(token, UserInfo.class);
-           /* LogEntity entity = new LogEntity();
+            LogEntity entity = new LogEntity();
             entity.setId(RandomUtil.uuId());
             entity.setCategory(LogSortEnum.Operate.getCode());
             entity.setUserId(info.getUserId());
@@ -190,7 +190,7 @@ public class ResultException {
             entity.setIPAddress(IpUtil.getIpAddr());
             entity.setCreatorTime(new Date());
             entity.setPlatForm(ServletUtil.getUserAgent());
-            logApi.writeLogRequest(entity);*/
+            logApi.writeLogRequest(entity);
         }catch (Exception g){
             log.error(e.getMessage());
         }
