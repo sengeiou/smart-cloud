@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="smart.mapper.QYDepartmentMapper">
+
+    <resultMap id="QYUser" type="smart.QYDepartmentEntity">
+        <id column="F_Id" property="id"/>
+        <result column="F_OrganizeId" property="organizeId"/>
+        <result column="F_WeChatDeptId" property="weChatDeptId"/>
+        <result column="F_Category" property="category"/>
+        <result column="F_EnCode" property="enCode"/>
+        <result column="F_FullName" property="fullName"/>
+        <result column="F_ManagerId" property="managerId"/>
+        <result column="F_PropertyJson" property="propertyJson"/>
+        <result column="F_Description" property="description"/>
+        <result column="F_SortCode" property="sortCode"/>
+        <result column="F_EnabledMark" property="enabledMark"/>
+        <result column="F_CreatorTime" property="creatorTime"/>
+        <result column="F_CreatorUserId" property="creatorUserId"/>
+        <result column="F_LastModifyTime" property="lastModifyTime"/>
+        <result column="F_LastModifyUserId" property="lastModifyUserId"/>
+        <result column="F_DeleteMark" property="deleteMark"/>
+        <result column="F_DeleteTime" property="deleteTime"/>
+        <result column="F_DeleteUserId" property="deleteUserId"/>
+        <result column="F_ParentId" property="parentId"/>
+        <result column="F_Order" property="forder"/>
+        <result column="F_SubmitState" property="submitState"/>
+        <result column="F_WeChatParentId" property="weChatParentId"/>
+        <result column="F_SyncState" property="syncState"/>
+    </resultMap>
+
+    <select id="getList" resultMap="QYUser">
+        select o.F_Id, w.F_OrganizeId as F_OrganizeId,w.F_WeChatDeptId,w.F_Order,w.F_WeChatParentId,o.F_ParentId, o.F_EnCode, o.F_FullName,
+        o.F_Category as F_Category, o.F_Description, w.F_SyncState, w.F_SubmitState from  base_organize o left join wechat_qydepartment w on
+        w.F_OrganizeId= o.F_Id ORDER BY F_Category desc
+    </select>
+
+    <select id="getListByUserId" parameterType="String" resultMap="QYUser">
+        select * from wechat_qydepartment where F_OrganizeId in(select F_OrganizeId from dbo.base_user where F_Id= #{userId}) order by F_SortCode
+    </select>
+
+</mapper>

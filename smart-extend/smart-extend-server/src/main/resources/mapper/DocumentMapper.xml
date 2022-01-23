@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="smart.mapper.DocumentMapper">
+    <resultMap id="DocumentEntity" type="smart.entity.DocumentEntity">
+        <id column="F_Id" property="id"/>
+        <result column="F_ParentId" property="parentId"/>
+        <result column="F_FullName" property="fullName"/>
+        <result column="F_Type" property="type"/>
+        <result column="F_FileSize" property="fileSize"/>
+        <result column="F_SortCode" property="sortCode"/>
+        <result column="F_FilePath" property="filePath"/>
+        <result column="F_FileExtension" property="fileExtension"/>
+        <result column="F_ReadcCount" property="readcCount"/>
+        <result column="F_IsShare" property="isShare"/>
+        <result column="F_ShareTime" property="shareTime"/>
+        <result column="F_Description" property="description"/>
+        <result column="F_EnabledMark" property="enabledMark"/>
+        <result column="F_CreatorTime" property="creatorTime"/>
+        <result column="F_CreatorUserId" property="creatorUserId"/>
+        <result column="F_LastModifyTime" property="lastModifyTime"/>
+        <result column="F_LastModifyUserId" property="lastModifyUserId"/>
+        <result column="F_DeleteMark" property="deleteMark"/>
+        <result column="F_DeleteTime" property="deleteTime"/>
+        <result column="F_DeleteUserId" property="deleteUserId"/>
+    </resultMap>
+    <select id="getShareTomeList" parameterType="String" resultMap="DocumentEntity">
+        SELECT * FROM ext_document WHERE F_Id IN (
+            SELECT F_DocumentId FROM ext_documentshare
+            WHERE F_ShareUserId = #{userId}
+        ) AND F_DeleteMark = 0
+    </select>
+
+    <select id="getChildList" parameterType="String" resultMap="DocumentEntity">
+        WITH document AS (
+            SELECT * FROM ext_document WHERE F_Id = #{folderId} UNION ALL
+            SELECT ext_document.* FROM (
+                SELECT * FROM ext_document WHERE F_Id = #{folderId}
+            ) AS document, ext_document  WHERE  document.F_Id = ext_document.F_ParentId
+        ) SELECT * FROM document
+    </select>
+
+    <update id="trashRecovery" parameterType="String">
+        UPDATE ext_document SET F_DELETEMARK=0,F_DELETETIME=NULL,F_DELETEUSERID=NULL WHERE F_Id=#{id}
+    </update>
+
+</mapper>

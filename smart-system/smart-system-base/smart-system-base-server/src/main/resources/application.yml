@@ -1,0 +1,30 @@
+# 应用服务器
+server:
+  tomcat:
+    uri-encoding: UTF-8
+  port: 30002
+
+# Spring
+spring:
+  main:
+    allow-bean-definition-overriding: true
+
+  # rabbitmq配置
+  rabbitmq:
+    enabled: true
+    addresses: 47.106.149.52:5672
+    password: guest
+    username: guest
+    virtual-host: /
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    health:
+      show-details: always
+    # 开启在线日志查看功能
+    logfile:
+      enabled: true

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="smart.permission.mapper.RoleMapper">
+
+    <select id="getListByUserId" parameterType="String" resultType="smart.permission.entity.RoleEntity">
+        SELECT * FROM base_role WHERE F_ID IN(SELECT F_OBJECTID  FROM base_userrelation WHERE F_USERID = #{userId}) ORDER BY F_SORTCODE
+    </select>
+
+</mapper>

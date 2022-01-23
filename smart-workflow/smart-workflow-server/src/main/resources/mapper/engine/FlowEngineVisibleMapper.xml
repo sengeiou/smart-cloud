@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="smart.engine.mapper.FlowEngineVisibleMapper">
+
+    <resultMap id="FlowList" type="smart.engine.entity.FlowEngineVisibleEntity">
+        <id column="F_Id" property="id"/>
+        <result column="F_FlowId" property="flowId"/>
+        <result column="F_OperatorType" property="operatorType"/>
+        <result column="F_OperatorId" property="operatorId"/>
+        <result column="F_SortCode" property="sortCode"/>
+        <result column="F_CreatorUserId" property="creatorUserId"/>
+        <result column="F_CreatorTime" property="creatorTime"/>
+    </resultMap>
+
+    <select id="getVisibleFlowList" parameterType="String" resultMap="FlowList">
+        SELECT * FROM flow_enginevisible WHERE F_OperatorId IN (${sql})
+    </select>
+
+</mapper>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="smart.form.mapper.OrderMapper">
+
+    <resultMap id="OrderVO" type="smart.form.entity.OrderEntity">
+        <id column="F_Id" property="id"/>
+        <result column="F_CustomerId" property="customerId"/>
+        <result column="F_CustomerName" property="customerName"/>
+        <result column="F_SalesmanId" property="salesmanId"/>
+        <result column="F_SalesmanName" property="salesmanName"/>
+        <result column="F_OrderDate" property="orderDate"/>
+        <result column="F_OrderCode" property="orderCode"/>
+        <result column="F_TransportMode" property="transportMode"/>
+        <result column="F_DeliveryDate" property="deliveryDate"/>
+        <result column="F_DeliveryAddress" property="deliveryAddress"/>
+        <result column="F_PaymentMode" property="paymentMode"/>
+        <result column="F_ReceivableMoney" property="receivableMoney"/>
+        <result column="F_EarnestRate" property="earnestRate"/>
+        <result column="F_PrepayEarnest" property="prepayEarnest"/>
+        <result column="F_CurrentState" property="currentState"/>
+        <result column="F_FileJson" property="fileJson"/>
+        <result column="F_Description" property="description"/>
+        <result column="F_SortCode" property="sortCode"/>
+        <result column="F_EnabledMark" property="enabledMark"/>
+        <result column="F_CreatorTime" property="creatorTime"/>
+        <result column="F_CreatorUserId" property="creatorUserId"/>
+        <result column="F_LastModifyTime" property="lastModifyTime"/>
+        <result column="F_LastModifyUserId" property="lastModifyUserId"/>
+        <result column="F_DeleteMark" property="deleteMark"/>
+        <result column="F_DeleteTime" property="deleteTime"/>
+        <result column="F_DeleteUserId" property="deleteUserId"/>
+    </resultMap>
+
+</mapper>

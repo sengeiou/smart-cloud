@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>smart-pay-core</artifactId>
+        <groupId>com.smart</groupId>
+        <version>3.1.0-SNAPSHOT</version>
+    </parent>
+    <description>计费模块</description>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>smart-pay-wx</artifactId>
+    <packaging>pom</packaging>
+    <modules>
+        <module>smart-pay-wx-api</module>
+        <module>smart-pay-wx-biz</module>
+        <module>smart-pay-wx-entity</module>
+    </modules>
+
+</project>

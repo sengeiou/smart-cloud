@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="smart.message.mapper.MessageMapper">
+
+    <resultMap id="Message" type="smart.message.entity.MessageEntity">
+        <id column="F_Id" property="id"/>
+        <result column="F_Title" property="title"/>
+        <result column="F_Type" property="type"/>
+        <result column="F_IsRead" property="isRead"/>
+        <result column="F_CreatorTime" property="creatorTime"/>
+        <result column="F_CreatorUserId" property="creatorUser"/>
+        <result column="F_LastModifyTime" property="lastModifyTime"/>
+    </resultMap>
+
+    <select id="getMessageList" parameterType="map" resultMap="Message">
+        SELECT  m.F_Id, m.F_Title, m.F_Type, r.F_IsRead, m.F_CreatorTime, m.F_CreatorUserId, m.F_LastModifyTime FROM base_message m
+        LEFT JOIN base_messagereceive r ON r.F_MessageId = m.F_Id  where r.F_UserId= #{map.userId}  ${map.sql}
+    </select>
+
+    <select id="getUnreadNoticeCount" parameterType="string" resultType="int">
+        SELECT COUNT(1)  FROM base_messagereceive r LEFT JOIN base_message m ON m.F_Id = r.F_MessageId
+        WHERE 1 = 1 AND r.F_UserId = #{userId} AND r.F_IsRead = 0 AND m.F_Type = 1
+    </select>
+
+    <select id="getUnreadMessageCount" parameterType="string" resultType="int">
+        SELECT COUNT(1)  FROM base_messagereceive r LEFT JOIN base_message m ON m.F_Id = r.F_MessageId
+        WHERE 1 = 1 AND r.F_UserId = #{userId} AND r.F_IsRead = 0 AND m.F_Type = 2
+    </select>
+
+    <select id="getInfoDefault" parameterType="int" resultMap="Message">
+        SELECT * FROM base_message WHERE 1 = 1 AND F_TYPE = #{type} ORDER BY F_CREATORTIME DESC
+    </select>
+
+</mapper>

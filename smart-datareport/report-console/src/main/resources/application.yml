@@ -1,0 +1,15 @@
+# 配置端口
+server:
+  port: 30007
+  max-http-header-size: 102400
+
+logging:
+  level:
+    root: info
+    com.bstek.ureport.console: debug
+  file:
+    path: log
+config:
+  #是否开启多租户
+  MultiTenancy: false
+

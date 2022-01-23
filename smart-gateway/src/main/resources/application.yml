@@ -1,0 +1,10 @@
+# 应用服务器
+server:
+  tomcat:
+    uri-encoding: UTF-8
+  port: 30000
+
+spring:
+  main:
+    #解决bean重复定义的。设置为true时，后定义的bean会覆盖之前定义的相同名称的bean
+    allow-bean-definition-overriding: true

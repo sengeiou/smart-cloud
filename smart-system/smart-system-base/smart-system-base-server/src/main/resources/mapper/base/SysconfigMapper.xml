@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="smart.base.mapper.SysconfigMapper">
+
+    <delete id="deleteFig">
+        delete from base_sysconfig where F_Category ='SysConfig'
+    </delete>
+    <delete id="deleteMpFig">
+        delete from base_sysconfig where F_Category='MPConfig'
+    </delete>
+    <delete id="deleteQyhFig">
+        delete from base_sysconfig where F_Category='QYHConfig'
+    </delete>
+</mapper>

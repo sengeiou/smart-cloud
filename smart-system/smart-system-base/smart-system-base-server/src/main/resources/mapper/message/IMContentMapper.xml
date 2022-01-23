@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="smart.message.mapper.IMContentMapper">
+
+<!--    <update id="SendMessage" parameterType="smart.system.entity.IMContentEntity">
+        <id column="F_Id" property="id"/>
+        <result column="F_SENDUSERID" property="sendUserId"/>
+        <result column="F_SENDTIME" property="sendTime"/>
+        <result column="F_RECEIVEUSERID" property="receiveUserId"/>
+        <result column="F_RECEIVETIME" property="receiveTime"/>
+        <result column="F_CONTENT" property="content"/>
+        <result column="F_CONTENTTYPE" property="contentType"/>
+        <result column="F_STATE" property="state"/>
+    </update>-->
+    <select id="getUnreadList" parameterType="String" resultType="smart.message.model.IMUnreadNumModel">
+        SELECT * FROM (
+            SELECT SUM(CASE WHEN F_State = 0 THEN 1 ELSE 0 END) AS UnreadNum, F_SendUserId AS SendUserId, F_ReceiveUserId AS ReceiveUserId
+            FROM base_imcontent WHERE 1 = 1 AND F_ReceiveUserId = #{receiveUserId} GROUP BY F_SendUserId, F_ReceiveUserId
+        ) t WHERE UnreadNum > 0
+    </select>
+
+    <select id="getUnreadLists" parameterType="String" resultType="smart.message.model.IMUnreadNumModel">
+        select F_SendUserId AS SendUserId, F_Content AS DefaultMessage,F_ContentType AS DefaultMessageType, F_SendTime AS DefaultMessageTime from base_imcontent WHERE 1 = 1 AND F_ReceiveUserId = #{receiveUserId} AND F_State = 0 order by F_SendTime desc
+    </select>
+
+    <update id="readMessage" parameterType="map">
+        UPDATE base_imcontent SET F_State = 1, F_ReceiveTime = #{map.receiveTime} WHERE 1 = 1 AND F_State = 0 AND F_SendUserId = #{map.sendUserId} AND F_ReceiveUserId = #{map.receiveUserId}
+    </update>
+
+</mapper>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="smart.mapper.QYUserMapper">
+
+    <resultMap id="QYUser" type="smart.QYUserEntity">
+        <id column="F_Id" property="id"/>
+        <result column="F_Account" property="account"/>
+        <result column="F_RealName" property="realName"/>
+        <result column="F_Gender" property="gender"/>
+        <result column="F_EnabledMark" property="enabledMark"/>
+        <result column="F_MobilePhone" property="mobilePhone"/>
+        <result column="F_Description" property="description"/>
+        <result column="F_SyncState" property="syncState"/>
+        <result column="F_OrganizeId" property="organizeId"/>
+        <result column="F_PositionId" property="positionId"/>
+    </resultMap>
+
+    <select id="getList" parameterType="String" resultMap="QYUser">
+	    SELECT u.F_Id, u.F_Account, u.F_RealName, u.F_Gender, u.F_EnabledMark, u.F_PositionId, u.F_OrganizeId ,u.F_MobilePhone,
+	    u.F_Description, w.F_SyncState FROM base_user u LEFT JOIN wechat_qyuser w ON w.F_UserId = u.F_Id order by ${orderBy}
+    </select>
+
+</mapper>

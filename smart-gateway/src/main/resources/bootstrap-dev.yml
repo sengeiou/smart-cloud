@@ -1,0 +1,79 @@
+# Spring
+spring:
+  application:
+    # 应用名称
+    name: smart-gateway
+  profiles:
+    active: dev
+  mvc:
+    servlet:
+      load-on-startup: 0
+  cloud:
+    nacos:
+      discovery:
+        # 服务注册地址
+        server-addr: 127.0.0.1:30099
+      config:
+        server-addr: 127.0.0.1:30099
+        file-extension: yaml
+        group: DEFAULT_GROUP
+        namespace: 69c4eecb-05bd-4041-81fe-1473f95f578c
+        # 数据源配置
+        extension-configs[0]:
+          data-id: datasource.yaml
+          group: DEFAULT_GROUP
+          refresh: true
+        # 静态资源路径配置
+        extension-configs[1]:
+          data-id: resources.yaml
+          group: DEFAULT_GROUP
+          refresh: true
+        # 添加新的网关新路由
+        extension-configs[2]:
+          data-id: router.yaml
+          group: DEFAULT_GROUP
+          refresh: true
+    sentinel:
+      # 取消控制台懒加载
+      eager: true
+      transport:
+        dashboard: localhost:30098
+      log:
+        dir: log/smart-gateway/sentinel
+      #限流
+      #      datasource:
+      #        sentinel-flow:
+      #          nacos:
+      #            server-addr: 127.0.0.1:30099
+      #            dataId: sentinel-ruleflow-service
+      #            groupId: DEFAULT_GROUP
+      #            data-type: json
+      #            rule-type: flow
+    gateway:
+      discovery:
+        locator:
+          lowerCaseServiceId: true
+          enabled: true
+
+# 全局参数设置
+ribbon:
+  ReadTimeout: 120000
+  ConnectTimeout: 10000
+  SocketTimeout: 10000
+  MaxAutoRetries: 0
+  MaxAutoRetriesNextServer: 1
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    health:
+      show-details: always
+    # 开启在线日志查看功能
+    logfile:
+      enabled: true
+
+

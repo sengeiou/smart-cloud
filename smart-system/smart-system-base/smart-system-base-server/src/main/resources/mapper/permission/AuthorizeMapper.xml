@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="smart.permission.mapper.AuthorizeMapper">
+
+    <resultMap id="ModuleVO" type="smart.base.model.module.ModuleModel">
+        <id column="F_Id" property="id"/>
+        <result column="F_ParentId" property="parentId"/>
+        <result column="F_FullName" property="fullName"/>
+        <result column="F_EnCode" property="enCode"/>
+        <result column="F_Type" property="type"/>
+        <result column="F_UrlAddress" property="urlAddress"/>
+        <result column="F_LinkTarget" property="linkTarget"/>
+        <result column="F_Category" property="category"/>
+        <result column="F_Icon" property="icon"/>
+        <result column="F_SortCode" property="sortCode"/>
+        <result column="F_PropertyJson" property="propertyJson"/>
+    </resultMap>
+
+    <resultMap id="ButtonVO" type="smart.base.model.button.ButtonModel">
+        <id column="F_Id" property="id"/>
+        <result column="F_ParentId" property="parentId"/>
+        <result column="F_FullName" property="fullName"/>
+        <result column="F_EnCode" property="enCode"/>
+        <result column="F_Icon" property="icon"/>
+        <result column="F_UrlAddress" property="urlAddress"/>
+        <result column="F_ModuleId" property="moduleId"/>
+    </resultMap>
+
+    <resultMap id="ColumnVO" type="smart.base.model.column.ColumnModel">
+        <id column="F_Id" property="id"/>
+        <result column="F_ParentId" property="parentId"/>
+        <result column="F_FullName" property="fullName"/>
+        <result column="F_EnCode" property="enCode"/>
+        <result column="F_BindTable" property="bindTable"/>
+        <result column="F_BindTableName" property="bindTableName"/>
+        <result column="F_ModuleId" property="moduleId"/>
+    </resultMap>
+
+    <resultMap id="ResourceVO" type="smart.base.model.resource.ResourceModel">
+        <id column="F_Id" property="id"/>
+        <result column="F_FullName" property="fullName"/>
+        <result column="F_EnCode" property="enCode"/>
+        <result column="F_ConditionJson" property="conditionJson"/>
+        <result column="F_ConditionText" property="conditionText"/>
+        <result column="F_ModuleId" property="moduleId"/>
+    </resultMap>
+
+
+    <select id="findModule" parameterType="String" resultMap="ModuleVO">
+        SELECT * FROM base_module WHERE F_Id IN (SELECT F_ItemId FROM base_authorize WHERE F_ObjectId IN (${objectId}) AND F_ItemType = 'module') and F_EnabledMark = '1'  Order by F_SortCode DESC,F_ParentId desc
+    </select>
+
+    <select id="findButton" parameterType="String" resultMap="ButtonVO">
+        SELECT * FROM base_modulebutton WHERE F_Id IN (SELECT F_ItemId FROM base_authorize WHERE F_ObjectId IN (${objectId}) AND F_ItemType = 'button') and F_EnabledMark = '1'  Order by F_SortCode desc
+    </select>
+
+
+    <select id="findColumn" parameterType="String" resultMap="ColumnVO">
+        SELECT * FROM base_modulecolumn WHERE F_Id IN (SELECT F_ItemId FROM base_authorize WHERE F_ObjectId IN (${objectId}) AND F_ItemType = 'column') and F_EnabledMark = '1'  Order by F_SortCode desc
+    </select>
+
+    <select id="findResource" parameterType="String" resultMap="ResourceVO">
+        SELECT * FROM base_moduledataauthorizescheme WHERE F_Id IN (SELECT F_ItemId FROM base_authorize WHERE F_ObjectId IN (${objectId}) AND F_ItemType = 'resource') and F_EnabledMark = '1'  Order by F_SortCode desc
+    </select>
+
+
+    <select id="findModuleAdmin" parameterType="String" resultMap="ModuleVO">
+      SELECT * FROM base_module WHERE F_EnabledMark = #{mark} Order by F_SortCode Asc
+    </select>
+
+    <select id="findButtonAdmin" parameterType="String" resultMap="ButtonVO">
+       SELECT * FROM base_modulebutton WHERE F_EnabledMark = #{mark} Order by F_SortCode desc
+    </select>
+
+    <select id="findColumnAdmin" parameterType="String" resultMap="ColumnVO">
+        SELECT * FROM base_modulecolumn WHERE F_EnabledMark = #{mark} Order by F_SortCode desc
+    </select>
+
+    <select id="findResourceAdmin" parameterType="String" resultMap="ResourceVO">
+       SELECT * FROM base_moduledataauthorizescheme WHERE F_EnabledMark = #{mark} Order by F_SortCode desc
+    </select>
+
+    <insert id="saveBatch" parameterType="String">
+        INSERT INTO base_authorize (F_ID, F_ITEMTYPE, F_ITEMID, F_OBJECTTYPE, F_OBJECTID, F_SORTCODE, F_CREATORTIME, F_CREATORUSERID ) VALUES ${values}
+    </insert>
+
+    <insert id="savaBatchList" parameterType="java.util.List">
+        INSERT ALL
+        <foreach item="item" index="index" collection="list">
+            INTO base_authorize (F_ID, F_ITEMTYPE, F_ITEMID, F_OBJECTTYPE, F_OBJECTID, F_SORTCODE, F_CREATORTIME,
+            F_CREATORUSERID ) VALUES (
+            #{item.id},
+            #{item.itemType},
+            #{item.itemId},
+            #{item.objectType},
+            #{item.objectId},
+            #{item.sortCode,jdbcType=NUMERIC},
+            #{item.creatorTime, jdbcType=TIMESTAMP},
+            #{item.creatorUserId})
+        </foreach>
+        SELECT 1 FROM DUAL
+    </insert>
+
+</mapper>

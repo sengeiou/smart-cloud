@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="smart.engine.mapper.FlowTaskOperatorMapper">
+
+    <update id="updateFixedapprover" parameterType="map">
+        update flow_taskoperator set F_Completion ='1' where F_TaskNodeId = #{map.taskNodeId} and F_Type =#{map.type}
+    </update>
+
+    <update id="updateDelegateUser" >
+        update flow_taskoperator set F_Completion ='1' where F_TaskNodeId = #{taskNodeId} and F_HandleId in (${userId})
+    </update>
+
+    <update id="updateState">
+        update flow_taskoperator set F_State ='-1' where F_TaskId = #{taskId}
+    </update>
+
+    <update id="updateReject">
+        update flow_taskoperator set F_Completion ='-1' where F_TaskId = #{taskId} and F_NodeCode in (${nodeId}) and F_Completion ='0' and F_State ='0'
+    </update>
+
+</mapper>

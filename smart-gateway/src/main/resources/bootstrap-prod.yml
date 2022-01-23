@@ -1,0 +1,50 @@
+# 应用服务器
+server:
+  tomcat:
+    uri-encoding: UTF-8
+  port: 30000
+# Spring
+spring:
+  application:
+    # 应用名称
+    name: gateway
+  main:
+    #解决bean重复定义的。设置为true时，后定义的bean会覆盖之前定义的相同名称的bean
+    allow-bean-definition-overriding: true
+  cloud:
+    nacos:
+      discovery:
+        # 服务注册地址
+        server-addr: 127.0.0.1:30099
+    sentinel:
+      # 取消控制台懒加载
+      eager: true
+      transport:
+        # 控制台地址
+        dashboard: 127.0.0.1:8718
+      log:
+        dir: log/sentinel
+
+    gateway:
+      discovery:
+        locator:
+          lowerCaseServiceId: true
+          enabled: true
+      routes:
+        # 认证中心
+        - id: oauth
+          uri: lb://oauth
+          predicates:
+            - Path=/api/oauth/**
+          filters:
+            # 验证码处理
+            - StripPrefix=2
+        # 系统
+        - id: system
+          uri: lb://system
+          predicates:
+            - Path=/api/system/**
+          filters:
+            - StripPrefix=2
+
+

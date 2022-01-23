@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="smart.mapper.CalenderMapper">
+<!--    查询所有日历名称-->
+    <select id="getAllName" resultType="java.lang.String">
+        SELECT F_name from p_calender group by F_name;
+    </select>
+<!--    添加日历名称时默认添加节假日-->
+    <insert id="createName">
+        <foreach collection="list" separator=";" item="c">
+            insert into p_calender(F_id,F_name,F_date,F_mark,F_CreatorTime,F_CreatorUserId)
+            value(#{c.id},#{c.name},#{c.date},#{c.mark},#{c.creatortime},#{c.creatoruserid})
+        </foreach>
+    </insert>
+<!--    通过名称删除日历配置-->
+    <delete id="deleteCalenderName" parameterType="java.lang.String">
+        delete from p_calender where F_name=#{name}
+    </delete>
+<!--    查询改日历名称是否已存在配置-->
+    <select id="getNumberByName" parameterType="java.lang.String" resultType="java.lang.Integer">
+        select count(1) from p_calender where F_name=#{name}
+    </select>
+<!--    判断某名称的日历配置是否有绑定在收费标准下-->
+    <select id="existingConfiguration" parameterType="java.lang.String" resultType="java.lang.Integer">
+        select count(1) from p_charges where F_calender_name=#{name} and F_EnabledMark=1
+    </select>
+</mapper>
