@@ -46,7 +46,6 @@ public class SysConfigController {
 
     /**
      * 列表
-     *
      * @return
      */
     @ApiOperation("列表")
