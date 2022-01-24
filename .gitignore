@@ -72,4 +72,4 @@ config/base.yaml
 !**/nacos/target
 **/nacos/data/*
 **/nacos/logs/*
-
+/smart-code-template/CodeTemp/*
