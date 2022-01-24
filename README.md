@@ -11,6 +11,21 @@ Maven  | 3.6.3 | 项目构建(需配置环境变量)
 Redis  | 3.2.100(Windows)/6.0.x(Linux、Mac) |
 MySQL  | 5.7.x |
 
+# JAVA环境
+- JDK1.8
+- Redis 3.2.1
+- Apache Maven 3.x
+
+# 前端环境
+- Node.js 12.18.2
+- Yarn 1.22.0
+
+# 数据库
+- MySQL 5.7
+- SQLServer 2012
+- Oracle 11g
+
+
 ## 工具推荐
 > 特别说明：`IDEA 2019.1`和`Maven 3.6.3`存在兼容性问题
 

@@ -1,0 +1,6 @@
+"F_Id","F_FullName","F_DbType","F_Host","F_Port","F_UserName","F_Password","F_ServiceName","F_Description","F_SortCode","F_EnabledMark","F_CreatorTime","F_CreatorUserId","F_LastModifyTime","F_LastModifyUserId","F_DeleteMark","F_DeleteTime","F_DeleteUserId"
+"2ac94bf4fdb44c8d85c5356053b77587","JNPF_Base","SqlServer",".\sqlexpress","1433","sa1","qwertyuiop","JNPF_Base",,"0","1","29/11/2018 14:57:54","admin","28/5/2020 14:24:41","admin",,,
+"3b25620f0c5f4807a8c293562478da30","base_test","MySql","192.168.0.31","3306","jnpf_test","MphCGJJe7yRcjEDy","jnpf_test",,"0","1","2/9/2020 02:25:55","admin","22/1/2021 02:17:38","admin",,,
+"423a1e2b62914a65a198166bd6fa4f7d","JNPF_Base_Mysql","MySql","192.168.0.31","3306","jnpf_dev","CFPSNHyzttGzKTWi","jnpf_dev",,"0","1","18/5/2020 15:15:51","admin","22/1/2021 02:18:34","admin",,,
+"834f0193235b4243b6cf50d55f4ec5df","Test_base","SqlServer","http://192.168.0.20:81/SystemData/DbLink","1433","root","123456","jnpf_test",,"0","1","24/9/2020 10:38:58","5903e7f2-eea9-4097-bbeb-dd0199b16643","20/1/2021 11:57:24","admin",,,
+"87c5756cabaa48fba46e996b89b3702f","JNPF_Base_Test","SqlServer",".\sqlexpress","1433","sa","qwertyuiop","JNPF_Base_Test",,"0","1","23/4/2020 17:05:54","admin","20/1/2021 11:57:29","admin",,,

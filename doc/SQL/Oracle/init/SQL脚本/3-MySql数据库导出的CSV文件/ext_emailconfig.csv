@@ -1,0 +1,2 @@
+"F_Id","F_POP3Host","F_POP3Port","F_SMTPHost","F_SMTPPort","F_Account","F_Password","F_Ssl","F_SenderName","F_FolderJson","F_Description","F_SortCode","F_EnabledMark","F_CreatorTime","F_CreatorUserId"
+"a2099481522f42fd9f04675a44c50052","pop3.sina.com.cn","110","smtp.sina.com.cn","587","yinmaisoft_hc@sina.com","1c53d293685a8f6c","0","系统管理员",,,,,"20/11/2020 06:35:57","admin"

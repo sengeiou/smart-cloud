@@ -1,0 +1,203 @@
+"F_Id","F_CategoryId","F_FullName","F_Path","F_RequestMethod","F_ResponseType","F_Query","F_RequestParameters","F_ResponseParameters","F_EnCode","F_SortCode","F_EnabledMark","F_Description","F_CreatorTime","F_CreatorUserId","F_LastModifyTime","F_LastModifyUserId","F_DeleteMark","F_DeleteTime","F_DeleteUserId","F_DbLinkId","F_DataType"
+"04d910fb47f4469e907a5c85949329cb","decbf5a18cf74bae90b98b3fbe04ec8a","散点图",,"get","json","[
+    {
+        ""data"": [
+            [
+                1,
+                8.04
+            ],
+            [
+                2,
+                6.95
+            ]
+        ]
+    },
+    {
+        ""data"": [
+            [
+                1,
+                4.04
+            ],
+            [
+                2,
+                3.95
+            ]
+        ]
+    }
+]",,,"散点图","0","1",,"3/11/2020 02:53:27","admin","3/11/2020 02:53:27",,,,,"0","2"
+"3044325436d347af9b59a617f10e3ab6","decbf5a18cf74bae90b98b3fbe04ec8a","漏斗图",,"get","json","[
+    {
+        ""value"": 335,
+        ""name"": ""直接访问""
+    },
+    {
+        ""value"": 310,
+        ""name"": ""邮件营销""
+    },
+    {
+        ""value"": 234,
+        ""name"": ""联盟广告""
+    }
+]",,,"漏斗图","0","1",,"3/11/2020 02:54:03","admin","6/1/2021 12:01:10","03d159a3-0f88-424c-a24f-02f63855fe4f",,,,"0","2"
+"78814d0a32fa41ae8427b708bfadb808","decbf5a18cf74bae90b98b3fbe04ec8a","雷达图",,"get","json","{
+    ""indicator"": [
+        {
+            ""name"": ""销售"",
+            ""max"": 6500
+        },
+        {
+            ""name"": ""管理"",
+            ""max"": 16000
+        },
+        {
+            ""name"": ""信息技术"",
+            ""max"": 30000
+        },
+        {
+            ""name"": ""客服"",
+            ""max"": 38000
+        },
+        {
+            ""name"": ""研发"",
+            ""max"": 52000
+        },
+        {
+            ""name"": ""市场"",
+            ""max"": 25000
+        }
+    ],
+    ""series"": [
+        {
+            ""data"": [
+                {
+                    ""value"": [
+                        4300,
+                        10000,
+                        28000,
+                        35000,
+                        50000,
+                        19000
+                    ],
+                    ""name"": ""预算分配（Allocated Budget）""
+                },
+                {
+                    ""value"": [
+                        5000,
+                        14000,
+                        28000,
+                        31000,
+                        42000,
+                        21000
+                    ],
+                    ""name"": ""实际开销（Actual Spending）""
+                }
+            ]
+        }
+    ]
+}",,,"雷达图","0","1",,"3/11/2020 02:52:15","admin","3/11/2020 02:52:15",,,,,"0","2"
+"79e5455c2f0d4d8ba2b444249bae0490","decbf5a18cf74bae90b98b3fbe04ec8a","饼图",,"get","json","[
+    {
+        ""name"": ""苹果"",
+        ""value"": 1000879,
+        ""url"": ""http://www.baidu.com""
+    },
+    {
+        ""name"": ""三星"",
+        ""value"": 3400879,
+        ""url"": ""http://www.baidu.com""
+    },
+    {
+        ""name"": ""小米"",
+        ""value"": 2300879,
+        ""url"": ""http://www.baidu.com""
+    },
+    {
+        ""name"": ""oppo"",
+        ""value"": 5400879,
+        ""url"": ""http://www.baidu.com""
+    },
+    {
+        ""name"": ""大疆"",
+        ""value"": 3000,
+        ""url"": ""http://www.baidu.com""
+    },
+    {
+        ""name"": ""抖音"",
+        ""value"": 2000,
+        ""url"": ""http://www.baidu.com""
+    }
+]",,,"bingtu","0","1",,"3/11/2020 02:50:36","admin","3/11/2020 02:50:36",,,,,"0","2"
+"83ae1f5e5c26447b8c4849ead352b048","30be5ef4e3074dd89385ad6b4540c63d","当前用户","1","get","json","SELECT F_RealName,F_OrganizeId,F_FullName from base_user,base_organize where base_user.F_OrganizeId=base_organize.F_Id and base_user.F_Id=@user","null",,"3323","2","1",,"7/9/2020 06:56:53","admin","23/3/2021 08:30:50","admin",,,,"0","1"
+"8ce8ccf7a3bf48a79a0c2bff20b46726","decbf5a18cf74bae90b98b3fbe04ec8a","象形图",,"get","json","[
+    {
+        ""name"": ""苹果"",
+        ""value"": 1000879
+    },
+    {
+        ""name"": ""三星"",
+        ""value"": 3400879
+    },
+    {
+        ""name"": ""小米"",
+        ""value"": 2300879
+    },
+    {
+        ""name"": ""oppo"",
+        ""value"": 5400879
+    },
+    {
+        ""name"": ""大疆"",
+        ""value"": 3000
+    },
+    {
+        ""name"": ""抖音"",
+        ""value"": 2000
+    }
+]",,,"象形图","0","0",,"3/11/2020 02:51:26","admin","3/11/2020 02:51:26",,,,,"0","2"
+"a0c3186292df4fe2842f66dee0ea7729","30be5ef4e3074dd89385ad6b4540c63d","测试公司","1","get","json","SELECT F_RealName,F_OrganizeId,F_FullName from base_user,base_organize where base_user.F_OrganizeId=base_organize.F_Id and base_organize.F_Id=@organize","null",,"23232","0","1",,"16/9/2020 06:32:43","admin","23/3/2021 08:26:45","admin",,,,"0","1"
+"bd993fb8dc914076a3848b0c121b17ca","30be5ef4e3074dd89385ad6b4540c63d","查询岗位",,"get","json","SELECT F_RealName,F_FullName,F_PositionId,base_position.F_FullName from base_user,base_position where base_user.F_PositionId=base_position.F_Id  and base_user.F_PositionId=@postion","null",,"gangwei","0","1",,"4/11/2020 10:12:01","admin","23/3/2021 08:31:58","admin",,,,"0","1"
+"be312b18a1664d8787e0dfcd2412969f","decbf5a18cf74bae90b98b3fbe04ec8a","折线图",,"get","json","{
+    ""categories"": [
+        ""苹果"",
+        ""三星"",
+        ""小米"",
+        ""oppo"",
+        ""vivo""
+    ],
+    ""series"": [
+        {
+            ""name"": ""手机品牌"",
+            ""data"": [
+                1000879,
+                3400879,
+                2300879,
+                5400879,
+                3400879
+            ]
+        }
+    ]
+}",,,"zhexiantu","0","1",,"3/11/2020 02:49:40","admin","3/11/2020 02:49:40",,,,,"0","2"
+"cd6fe911f90048f0bba7ef9f38251d96","decbf5a18cf74bae90b98b3fbe04ec8a","柱状图",,"get","json","{
+    ""categories"": [
+        ""苹果品牌"",
+        ""三星品牌"",
+        ""小米品牌"",
+        ""oppo品牌"",
+        ""vivo品牌""
+    ],
+    ""series"": [
+        {
+            ""name"": ""手机品牌"",
+            ""data"": [
+                1000879,
+                3400879,
+                2300879,
+                5400879,
+                3400879
+            ]
+        }
+    ]
+}","null",,"柱状图","0","1",,"3/11/2020 02:47:58","admin","13/1/2021 02:53:56","admin",,,,"0","2"
+"ebcc44be142e43b795c0d769abd6d25a","30be5ef4e3074dd89385ad6b4540c63d","用户列表","1","get","json","SELECT F_RealName,F_FullName,F_PositionId,base_position.F_FullName,base_user.F_Id  from base_user,base_position where base_user.F_PositionId=base_position.F_Id ","null",,"yonghu","0","1",,"16/9/2020 09:07:56","admin","23/3/2021 08:28:38","admin",,,,"0","1"
+"fdfd02c7628a4ea4a0b125463e7933e0","30be5ef4e3074dd89385ad6b4540c63d","测试部门","1","get","json","SELECT F_RealName,F_OrganizeId,F_FullName,F_PositionId from base_user,base_organize where base_user.F_OrganizeId=base_organize.F_Id and base_organize.F_Id=@department","null",,"89782110f4544696bbfc422a516046ab","0","1",,"16/9/2020 09:01:14","admin","23/3/2021 08:32:38","admin",,,,"0","1"
+"fefa98691b7d4d06bc568b50714444af","1a559dca-8b91-49d1-b08c-ffaaa5656f8e","14","0","get","json","1","1","1","b527da0c6b3442879d2641c9a8686603","0","1","14","11/8/2020 10:29:53","00ca450b-141b-45d2-b6cb-94d818165543","11/8/2020 10:29:53",,,,,"0","1"
