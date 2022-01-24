@@ -208,7 +208,7 @@ import java.util.*;
 @Slf4j
 @RestController
 @Api(tags = "${genInfo.description}" , description = "${areasName}")
-@RequestMapping("/api/${areasName}/${genInfo.className}")
+@RequestMapping("/${areasName}/${genInfo.className}")
 public class ${table.controllerName} {
 #if(${pKeyName.substring(0,2).toLowerCase()}=='f_')
     #set($peimaryKeyName = "${pKeyName.substring(2,3).toUpperCase()}${pKeyName.substring(3).toLowerCase()}")
