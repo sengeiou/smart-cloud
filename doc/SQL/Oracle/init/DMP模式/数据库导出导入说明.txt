@@ -1,0 +1,49 @@
+导出命令：
+exp JNPFCLOUD/JNPFCLOUD@JNPFCLOUD owner=JNPFCLOUD rows=y indexes=y compress=n buffer=50000000 file=D:\DBINIT\JNPFCLOUD\exp_JNPFCLOUD.dmp log=D:\DBINIT\JNPFCLOUD\exp_JNPFCLOUD.log
+		**当前表空间、临时表空间名称：JNPFCLOUD、JNPFCLOUDTEMP
+		**导出路径视情况进行修改
+
+
+导入命令：
+imp JNPFCLOUD/JNPFCLOUD@JNPFCLOUD fromuser=JNPFCLOUD touser=JNPFCLOUD rows=y indexes=y commit=y buffer=50000000 ignore=n file=D:\DBINIT\JNPFCLOUD\exp_JNPFCLOUD.dmp log=D:\DBINIT\JNPFCLOUD\exp_JNPFCLOUD.log
+		**注意： fromuser：指导出dmp文件的用户名
+		         touser: 当前导入数据库的用户名
+
+		**导入之前：需要先创建数据库实例，创建表空间、临时表空间，表空间、临时表空间的名称与导出DMP的表空间、临时表空间保持一致，不然导入可能会报错
+           	**创建数据库实例，按钮Oracle操作说明进行创建
+           	
+           	**数据库名称、用户名称可以跟原来不一样
+	
+						**创建临时表空间(语法参照，具体名称、路径视实际情况而定)：
+							CREATE TEMPORARY TABLESPACE JNPFCLOUDTEMP
+							TEMPFILE 'C:\runTime\oradata\orcl\JNPFCLOUDTEMP01.dbf'
+							SIZE 32M
+							AUTOEXTEND ON
+							NEXT 32M MAXSIZE 2048M
+							EXTENT MANAGEMENT LOCAL;
+
+						**创建表空间(语法参照，具体名称、路径视实际情况而定)：
+							CREATE TABLESPACE JNPFCLOUD
+							LOGGING
+							DATAFILE 'C:\runTime\oradata\orcl\JNPFCLOUD01.dbf' 
+							SIZE 32M 
+							AUTOEXTEND ON 
+							NEXT 32M MAXSIZE 2048M
+							EXTENT MANAGEMENT LOCAL;
+						
+						**创建用户(语法参照，具体名称、路径视实际情况而定)：
+							CREATE USER JNPFCLOUD IDENTIFIED BY JNPFCLOUD
+							DEFAULT TABLESPACE JNPFCLOUD
+							TEMPORARY TABLESPACE JNPFCLOUDTEMP;
+						
+						**新创建用户的授权(语法参照，具体名称视实际情况而定)：
+							GRANT 
+							　　CREATE SESSION, CREATE ANY TABLE, CREATE ANY VIEW ,CREATE ANY INDEX, CREATE ANY PROCEDURE,
+							　　ALTER ANY TABLE, ALTER ANY PROCEDURE,
+							　　DROP ANY TABLE, DROP ANY VIEW, DROP ANY INDEX, DROP ANY PROCEDURE,
+							　　SELECT ANY TABLE, INSERT ANY TABLE, UPDATE ANY TABLE, DELETE ANY TABLE
+							　　TO JNPFCLOUD;
+
+							GRANT  connect,dba  TO  JNPFCLOUD;
+
+
